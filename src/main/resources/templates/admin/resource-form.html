@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${editing} ? 'Edit Resource | Smart Campus' : 'Add Resource | Smart Campus'">Resource | Smart Campus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css(v=4)}"><link rel="stylesheet" th:href="@{/css/admin.css(v=2)}">
+</head>
+<body class="admin-page"><div class="admin-shell">
+    <aside th:replace="~{fragments/admin-sidebar :: sidebar('resources')}"></aside>
+    <main class="admin-main">
+        <header class="admin-topbar"><div><span class="admin-kicker">ADMINISTRATION / CATALOGUE</span><h1 th:text="${editing} ? 'Edit resource' : 'Add resource'">Add resource</h1></div><a class="admin-view-site" th:href="@{/admin/resources}">← Back to resources</a></header>
+        <section class="admin-page-heading"><div><p class="admin-eyebrow">RESOURCE DETAILS</p><h2 th:text="${editing} ? 'Update catalogue entry' : 'Create catalogue entry'">Create catalogue entry</h2><p>Enter the details that campus members will see in the resource catalogue.</p></div></section>
+        <section class="admin-form-card">
+            <form method="post" th:action="${editing} ? @{/admin/resources/{id}(id=${resourceId})} : @{/admin/resources}" th:object="${resourceForm}">
+                <div class="admin-form-grid">
+                    <div class="admin-form-field full-field"><label for="resourceName">Resource name</label><input id="resourceName" type="text" th:field="*{name}" maxlength="120" placeholder="e.g. Smart Classroom A105" required><p class="admin-field-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Enter a resource name.</p></div>
+                    <div class="admin-form-field"><label for="resourceCategory">Category</label><select id="resourceCategory" th:field="*{category}" required><option value="">Choose category</option><option th:each="categoryOption : ${categories}" th:value="${categoryOption.name()}" th:text="${categoryOption.displayName}">Classroom</option></select><p class="admin-field-error" th:if="${#fields.hasErrors('category')}" th:errors="*{category}">Choose a valid category.</p></div>
+                    <div class="admin-form-field"><label for="resourceStatus">Availability</label><select id="resourceStatus" th:field="*{availabilityStatus}" required><option value="">Choose status</option><option th:each="statusOption : ${statuses}" th:value="${statusOption.name()}" th:text="${statusOption.displayName}">Available</option></select><p class="admin-field-error" th:if="${#fields.hasErrors('availabilityStatus')}" th:errors="*{availabilityStatus}">Choose a valid availability status.</p></div>
+                    <div class="admin-form-field"><label for="resourceLocation">Location</label><input id="resourceLocation" type="text" th:field="*{location}" maxlength="200" placeholder="e.g. Block A, Floor 1" required><p class="admin-field-error" th:if="${#fields.hasErrors('location')}" th:errors="*{location}">Enter a location.</p></div>
+                    <div class="admin-form-field"><label for="capacityOrQuantity">Capacity or quantity</label><input id="capacityOrQuantity" type="number" min="1" th:field="*{capacityOrQuantity}" required><p class="field-hint">Use seats for rooms, workstations for labs, and item count for equipment.</p><p class="admin-field-error" th:if="${#fields.hasErrors('capacityOrQuantity')}" th:errors="*{capacityOrQuantity}">Enter a value of at least 1.</p></div>
+                    <div class="admin-form-field full-field"><label for="resourceDescription">Description</label><textarea id="resourceDescription" rows="4" th:field="*{description}" maxlength="500" placeholder="Describe this campus resource" required></textarea><p class="admin-field-error" th:if="${#fields.hasErrors('description')}" th:errors="*{description}">Enter a description.</p></div>
+                </div>
+                <div class="form-actions"><a class="admin-button-secondary" th:href="@{/admin/resources}">Cancel</a><button class="admin-button" type="submit" th:text="${editing} ? 'Save changes' : 'Create resource'">Create resource</button></div>
+            </form>
+        </section>
+        <footer class="admin-footer">Smart Campus Administration</footer>
+    </main>
+</div></body></html>

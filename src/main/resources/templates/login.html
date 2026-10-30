@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Sign in to Smart Campus.">
+    <title th:text="${administratorLogin} ? 'Administrator Login | Smart Campus' : 'Login | Smart Campus'">Login | Smart Campus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css(v=4)}">
+</head>
+<body class="account-page">
+<header th:replace="~{fragments/navigation :: mainNavigation}"></header>
+
+<main class="account-main">
+    <section class="account-card login-card" aria-labelledby="login-title">
+        <a class="account-home-link" th:href="@{/}">&#8592; Smart Campus</a>
+        <p class="eyebrow account-eyebrow"><span class="eyebrow-line"></span> YOUR CAMPUS, IN SYNC</p>
+        <h1 id="login-title" th:text="${administratorLogin} ? 'Administrator access' : 'Welcome back'">Welcome back</h1>
+        <p class="account-intro" th:text="${administratorLogin} ? 'Sign in with your campus administrator credentials.' : 'Sign in to continue to your campus community.'">Sign in to continue to your campus community.</p>
+
+        <div class="role-options" aria-label="Choose account role">
+            <a class="role-option" th:classappend="${!administratorLogin} ? ' active' : ''" th:href="@{/login}">
+                <span class="role-symbol" aria-hidden="true">&#9823;</span>
+                <span>Student / Club</span>
+            </a>
+            <a class="role-option" th:classappend="${administratorLogin} ? ' active' : ''" th:href="@{/login/admin}">
+                <span class="role-symbol admin-symbol" aria-hidden="true">&#9881;</span>
+                <span>Administrator</span>
+            </a>
+        </div>
+
+        <div class="status-message submission-message" role="status" th:if="${param.registered}">Your account has been created. You can now sign in.</div>
+        <div class="status-message" role="alert" th:if="${param.error}">Email or password was not accepted. Check your details and try again.</div>
+        <div class="status-message" role="alert" th:if="${param.roleError}">Use the matching login option for your account role.</div>
+        <div class="status-message submission-message" role="status" th:if="${param.logout}">You have been signed out.</div>
+        <div class="status-message" role="alert" th:if="${param.disabled}">This account is inactive. Contact a campus administrator for help.</div>
+
+        <form method="post" th:action="@{/login/authenticate}">
+            <input type="hidden" name="loginMode" th:value="${administratorLogin} ? 'ADMIN' : 'USER'">
+            <div class="form-field">
+                <label for="email">College email</label>
+                <input id="email" name="email" type="email" autocomplete="username" placeholder="you@college.edu" required maxlength="254">
+            </div>
+            <div class="form-field">
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+            </div>
+            <button class="primary-submit" type="submit">Continue</button>
+        </form>
+
+        <p class="account-guard" th:if="${administratorLogin}">Administrator accounts cannot be created through public registration.</p>
+        <p class="account-switch" th:unless="${administratorLogin}">New to Smart Campus? <a th:href="@{/register}">Create an account</a></p>
+        <p class="account-switch" th:if="${administratorLogin}">Looking for student or club access? <a th:href="@{/login}">Choose Student / Club</a></p>
+    </section>
+</main>
+
+<footer class="account-footer">
+    <a class="brand footer-brand" th:href="@{/}"><span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span><span>smart<span class="brand-campus">campus</span></span></a>
+    <span>Thoughtfully shaping campus life.</span>
+</footer>
+</body>
+</html>

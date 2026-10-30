@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<header th:fragment="mainNavigation" class="site-header">
+    <nav class="navbar" aria-label="Main navigation">
+        <div class="container site-container">
+            <a class="brand" th:href="@{/}" aria-label="Smart Campus home">
+                <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+                <span>smart<span class="brand-campus">campus</span></span>
+            </a>
+            <div class="desktop-nav">
+                <a class="nav-link" th:href="@{/#approach}">Our Approach</a>
+                <a class="nav-link" th:href="@{/resources}">Explore Resources</a>
+                <a class="nav-link" th:href="@{/#contact}">Contact</a>
+                <a class="portal-nav-link" th:if="${loggedInUserRole == 'STUDENT'}" th:href="@{/student/dashboard}" th:classappend="${activePortalPage == 'dashboard'} ? ' active' : ''">Dashboard</a>
+                <a class="portal-nav-link" th:if="${loggedInUserRole == 'CLUB_REPRESENTATIVE'}" th:href="@{/club/dashboard}" th:classappend="${activePortalPage == 'dashboard'} ? ' active' : ''">Dashboard</a>
+                <a class="portal-nav-link" th:if="${loggedInUserRole == 'STUDENT'}" th:href="@{/student/bookings}" th:classappend="${activePortalPage == 'bookings'} ? ' active' : ''">My Bookings</a>
+                <a class="portal-nav-link" th:if="${loggedInUserRole == 'CLUB_REPRESENTATIVE'}" th:href="@{/club/bookings}" th:classappend="${activePortalPage == 'bookings'} ? ' active' : ''">My Bookings</a>
+                <a class="portal-nav-link" th:if="${loggedInUserRole == 'STUDENT'}" th:href="@{/student/equipment}" th:classappend="${activePortalPage == 'equipment'} ? ' active' : ''">My Equipment</a>
+                <a class="portal-nav-link" th:if="${loggedInUserRole == 'CLUB_REPRESENTATIVE'}" th:href="@{/club/equipment}" th:classappend="${activePortalPage == 'equipment'} ? ' active' : ''">My Equipment</a>
+                <a class="portal-nav-link" th:if="${loggedInUserRole == 'STUDENT'}" th:href="@{/student/profile}" th:classappend="${activePortalPage == 'profile'} ? ' active' : ''">My Profile</a>
+                <a class="portal-nav-link" th:if="${loggedInUserRole == 'CLUB_REPRESENTATIVE'}" th:href="@{/club/profile}" th:classappend="${activePortalPage == 'profile'} ? ' active' : ''">My Profile</a>
+                <a class="nav-login" th:href="@{/login}" th:if="${loggedInUserName == null}">Login</a>
+                <a class="nav-signup" th:href="@{/register}" th:if="${loggedInUserName == null}">Sign Up</a>
+                <span class="nav-user" th:if="${loggedInUserName != null}" th:text="${loggedInUserName}">Campus user</span>
+                <form class="nav-logout-form" method="post" th:action="@{/logout}" th:if="${loggedInUserName != null}">
+                    <button class="nav-login" type="submit">Log out</button>
+                </form>
+            </div>
+            <details class="mobile-nav">
+                <summary aria-label="Open navigation menu"><span class="menu-lines" aria-hidden="true"></span><span>Menu</span></summary>
+                <div class="mobile-nav-panel">
+                    <a th:href="@{/#approach}">Our Approach</a>
+                    <a th:href="@{/resources}">Explore Resources</a>
+                    <a th:href="@{/#contact}">Contact</a>
+                    <a th:if="${loggedInUserRole == 'STUDENT'}" th:href="@{/student/dashboard}">Dashboard</a>
+                    <a th:if="${loggedInUserRole == 'CLUB_REPRESENTATIVE'}" th:href="@{/club/dashboard}">Dashboard</a>
+                    <a th:if="${loggedInUserRole == 'STUDENT'}" th:href="@{/student/bookings}">My Bookings</a>
+                    <a th:if="${loggedInUserRole == 'CLUB_REPRESENTATIVE'}" th:href="@{/club/bookings}">My Bookings</a>
+                    <a th:if="${loggedInUserRole == 'STUDENT'}" th:href="@{/student/equipment}">My Equipment</a>
+                    <a th:if="${loggedInUserRole == 'CLUB_REPRESENTATIVE'}" th:href="@{/club/equipment}">My Equipment</a>
+                    <a th:if="${loggedInUserRole == 'STUDENT'}" th:href="@{/student/profile}">My Profile</a>
+                    <a th:if="${loggedInUserRole == 'CLUB_REPRESENTATIVE'}" th:href="@{/club/profile}">My Profile</a>
+                    <a class="mobile-login" th:href="@{/login}" th:if="${loggedInUserName == null}">Login</a>
+                    <a class="mobile-signup" th:href="@{/register}" th:if="${loggedInUserName == null}">Sign Up</a>
+                    <span class="mobile-user" th:if="${loggedInUserName != null}" th:text="${loggedInUserName}">Campus user</span>
+                    <form method="post" th:action="@{/logout}" th:if="${loggedInUserName != null}">
+                        <button class="mobile-login" type="submit">Log out</button>
+                    </form>
+                </div>
+            </details>
+        </div>
+    </nav>
+</header>
+</body>
+</html>

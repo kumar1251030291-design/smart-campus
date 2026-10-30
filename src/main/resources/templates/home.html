@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A thoughtful starting point for a more connected campus.">
+    <title>Smart Campus | A campus in sync</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css(v=4)}">
+</head>
+<body>
+<header th:replace="~{fragments/navigation :: mainNavigation}"></header>
+
+<main id="top">
+    <section class="hero-section">
+        <div class="container site-container">
+            <div class="hero-grid">
+                <div class="hero-copy">
+                    <p class="eyebrow"><span class="eyebrow-line"></span> MADE FOR CAMPUS LIFE</p>
+                    <h1>A campus that<br>works <span>in sync.</span></h1>
+                    <p class="hero-description">A thoughtful home for the spaces, resources and shared moments that make campus life better.</p>
+                    <a class="text-link" href="#approach">Get to know the idea <span aria-hidden="true">&#x2198;</span></a>
+                </div>
+                <div class="hero-art" aria-label="Illustration of a calm, connected campus" role="img">
+                    <div class="art-sun"></div>
+                    <div class="art-hill hill-back"></div>
+                    <div class="art-building building-left"><span class="building-roof"></span><span class="building-window window-one"></span><span class="building-window window-two"></span><span class="building-door"></span></div>
+                    <div class="art-building building-main"><span class="building-roof"></span><span class="building-window window-one"></span><span class="building-window window-two"></span><span class="building-window window-three"></span><span class="building-door"></span></div>
+                    <div class="art-tree tree-one"><span></span></div>
+                    <div class="art-tree tree-two"><span></span></div>
+                    <div class="art-hill hill-front"></div>
+                    <div class="art-path"></div>
+                    <div class="art-label label-one"><span class="label-icon">&#x2733;</span><span>Shared spaces<br><strong>made simple</strong></span></div>
+                    <div class="art-label label-two"><span class="label-icon label-icon-soft">&#x2302;</span><span>A place to<br><strong>belong</strong></span></div>
+                    <span class="art-sparkle sparkle-one" aria-hidden="true">&#x2733;</span>
+                    <span class="art-sparkle sparkle-two" aria-hidden="true">&#x2726;</span>
+                </div>
+            </div>
+            <div class="hero-bottom-row">
+                <span>THOUGHTFUL BY DESIGN</span>
+                <span class="scroll-cue"><span></span> A little more below</span>
+                <span>01 &#8212; A FRESH START</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="approach-section" id="approach">
+        <div class="container site-container">
+            <div class="section-heading">
+                <p class="eyebrow"><span class="eyebrow-line"></span> THE IDEA</p>
+                <h2>Good campus days<br>start with <span>the details.</span></h2>
+                <p class="section-intro">Campus is more than a collection of buildings. It is the rooms where ideas take shape, the resources that keep things moving, and the people who bring it all to life.</p>
+            </div>
+            <div class="row g-3 feature-row" id="explore-resources">
+                <div class="col-md-4">
+                    <article class="feature-card">
+                        <span class="feature-number">01</span>
+                        <span class="feature-icon icon-sage" aria-hidden="true">&#x2302;</span>
+                        <h3>Spaces with purpose</h3>
+                        <p>Classrooms and campus spaces are part of a more considered campus experience.</p>
+                        <span class="feature-accent"></span>
+                    </article>
+                </div>
+                <div class="col-md-4">
+                    <article class="feature-card">
+                        <span class="feature-number">02</span>
+                        <span class="feature-icon icon-mint" aria-hidden="true">&#x2733;</span>
+                        <h3>Resources in reach</h3>
+                        <p>Everyday campus resources belong in one clear, welcoming place.</p>
+                        <span class="feature-accent accent-mint"></span>
+                    </article>
+                </div>
+                <div class="col-md-4">
+                    <article class="feature-card">
+                        <span class="feature-number">03</span>
+                        <span class="feature-icon icon-cream" aria-hidden="true">&#x2661;</span>
+                        <h3>Made for everyone</h3>
+                        <p>A shared campus works best when the experience feels simple for all.</p>
+                        <span class="feature-accent accent-cream"></span>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <div class="container site-container footer-inner" id="contact">
+        <a class="brand footer-brand" href="#top"><span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span><span>smart<span class="brand-campus">campus</span></span></a>
+        <span>Thoughtfully shaping campus life.<small class="contact-note">Campus contact details have not been configured yet.</small></span>
+        <span class="footer-year">A COLLEGE PROJECT &#183; 2026</span>
+    </div>
+</footer>
+</body>
+</html>

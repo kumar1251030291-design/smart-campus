@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${dashboardHeading} + ' | Smart Campus'">Dashboard | Smart Campus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css(v=4)}"><link rel="stylesheet" th:href="@{/css/portal.css(v=2)}">
+</head>
+<body>
+<header th:replace="~{fragments/navigation :: mainNavigation}"></header>
+<main class="portal-shell"><div class="portal-container">
+    <section class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+        <div><p class="portal-kicker" th:text="${dashboardRole} + ' PORTAL · ' + ${today}">STUDENT PORTAL</p>
+            <h1 class="portal-heading" th:text="'Welcome, ' + ${campusUser.fullName}">Welcome to Smart Campus</h1>
+            <span class="portal-pill mt-2" th:text="${campusUser.accountStatus}">ACTIVE</span>
+            <p class="portal-muted mb-0" th:if="${campusUser.role.name() == 'STUDENT'}">
+                <span th:text="${campusUser.department}"></span> · Year <span th:text="${campusUser.yearOfStudy}"></span> · Roll <span th:text="${campusUser.rollNumber}"></span>
+            </p>
+            <p class="portal-muted mb-0" th:if="${campusUser.role.name() == 'CLUB_REPRESENTATIVE'}">
+                <span th:text="${campusUser.clubName}"></span> · <span th:text="${campusUser.department}"></span> · <span th:text="${campusUser.email}"></span>
+            </p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap"><a class="portal-action" th:href="@{/resources}">Explore resources</a><a class="portal-action secondary" th:href="@{'/' + ${memberPath} + '/bookings/new'}">New booking request</a></div>
+    </section>
+
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg"><div class="portal-stat"><span class="stat-label">Total requests</span><strong class="stat-number" th:text="${dashboardData.totalBookings}">0</strong></div></div>
+        <div class="col-6 col-lg"><div class="portal-stat"><span class="stat-label">Pending</span><strong class="stat-number" th:text="${dashboardData.pendingBookings}">0</strong></div></div>
+        <div class="col-6 col-lg"><div class="portal-stat"><span class="stat-label">Approved</span><strong class="stat-number" th:text="${dashboardData.approvedBookings}">0</strong></div></div>
+        <div class="col-6 col-lg"><div class="portal-stat"><span class="stat-label">Rejected</span><strong class="stat-number" th:text="${dashboardData.rejectedBookings}">0</strong></div></div>
+        <div class="col-6 col-lg"><div class="portal-stat"><span class="stat-label">Upcoming reservations</span><strong class="stat-number" th:text="${#lists.size(dashboardData.upcomingBookings)}">0</strong></div></div>
+        <div class="col-6 col-lg"><div class="portal-stat"><span class="stat-label">Allocated equipment</span><strong class="stat-number" th:text="${#lists.size(dashboardData.allocatedEquipment)}">0</strong></div></div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-7"><section class="portal-panel">
+            <div class="d-flex justify-content-between align-items-center gap-2 mb-3"><h2 class="h5 mb-0">Recent booking activity</h2><a class="small text-success" th:href="@{'/' + ${memberPath} + '/bookings'}">View all</a></div>
+            <div class="table-responsive" th:if="${!#lists.isEmpty(dashboardData.recentBookings)}"><table class="table portal-table align-middle mb-0"><thead><tr><th>Event</th><th>When</th><th>Status</th></tr></thead><tbody>
+                <tr th:each="request:${dashboardData.recentBookings}"><td><a class="text-success" th:href="@{'/' + ${memberPath} + '/bookings/' + ${request.bookingId}}" th:text="${request.eventTitle}"></a><small class="d-block text-secondary" th:text="${request.bookingCode}"></small></td><td th:text="${#temporals.format(request.eventDate, 'dd MMM yyyy')}"></td><td><span class="portal-pill" th:text="${request.status.displayName}"></span></td></tr>
+            </tbody></table></div>
+            <div class="portal-empty" th:if="${#lists.isEmpty(dashboardData.recentBookings)}">No booking requests yet. Explore campus resources when you are ready to plan an event.</div>
+        </section>
+        <section class="portal-panel mt-3"><div class="d-flex justify-content-between align-items-center mb-3"><h2 class="h5 mb-0">Upcoming reservations</h2><a class="small text-success" th:href="@{'/' + ${memberPath} + '/bookings?filter=upcoming'}">View schedule</a></div>
+            <div class="portal-detail-card mb-2" th:each="request:${dashboardData.upcomingBookings}"><div class="d-flex justify-content-between flex-wrap gap-2"><strong th:text="${request.eventTitle}"></strong><span class="portal-pill" th:text="${#temporals.format(request.eventDate, 'dd MMM yyyy')} + ' · ' + ${#temporals.format(request.startTime, 'hh:mm a')}"></span></div><small class="text-secondary" th:text="${request.bookingCode} + ' · ends ' + ${#temporals.format(request.endTime, 'hh:mm a')}"></small></div>
+            <div class="portal-empty" th:if="${#lists.isEmpty(dashboardData.upcomingBookings)}">No upcoming approved reservations.</div>
+        </section></div>
+        <div class="col-lg-5"><section class="portal-panel"><div class="d-flex justify-content-between align-items-center mb-3"><h2 class="h5 mb-0">My allocated equipment</h2><a class="small text-success" th:href="@{'/' + ${memberPath} + '/equipment'}">My equipment</a></div>
+            <div class="portal-detail-card mb-2" th:each="item:${dashboardData.allocatedEquipment}"><div class="d-flex justify-content-between gap-2"><strong th:text="${item.resourceName}"></strong><span class="portal-pill" th:text="${item.equipmentStatus}"></span></div><small class="text-secondary" th:text="${item.assetTag != null ? item.assetTag : item.allocatedQuantity + ' item(s)'} + ' · ' + ${item.bookingCode}"></small></div>
+            <div class="portal-empty" th:if="${#lists.isEmpty(dashboardData.allocatedEquipment)}">No equipment is currently reserved or issued to your account.</div>
+        </section>
+        <section class="portal-panel mt-3"><div class="d-flex justify-content-between align-items-center mb-3"><h2 class="h5 mb-0">Notifications</h2></div>
+            <div th:each="notice:${dashboardData.notifications}" class="portal-alert mb-2" th:classappend="${notice.attentionNeeded()} ? ' portal-attention' : ''"><strong th:text="${notice.title}"></strong><p class="small mb-1" th:text="${notice.message}"></p><a class="small text-success" th:if="${notice.destinationUrl != null}" th:href="@{${notice.destinationUrl}}">Open update</a><small class="d-block text-secondary" th:text="${#temporals.format(notice.occurredAt, 'dd MMM yyyy, hh:mm a')}"></small></div>
+            <div class="portal-empty" th:if="${#lists.isEmpty(dashboardData.notifications)}">No notifications yet.</div>
+        </section>
+        <section class="portal-panel mt-3"><h2 class="h5">Recently explored</h2><div class="portal-empty">Resource exploration history is not collected yet.</div></section>
+        <section class="portal-panel mt-3"><div class="d-flex justify-content-between align-items-center mb-3"><h2 class="h5 mb-0">Campus announcements</h2></div>
+            <div class="portal-empty" th:if="${#lists.isEmpty(dashboardAnnouncements)}">There are no announcements at this time.</div></section></div>
+    </div>
+</div></main>
+</body></html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Equipment tracking | Smart Campus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css(v=4)}">
+    <link rel="stylesheet" th:href="@{/css/admin.css(v=2)}">
+</head>
+<body class="admin-page">
+<div class="admin-shell">
+    <aside th:replace="~{fragments/admin-sidebar :: sidebar('equipment')}"></aside>
+    <main class="admin-main">
+        <div class="admin-topbar"><div><span class="admin-kicker">ADMINISTRATION</span><h1>Equipment tracking</h1></div><a class="admin-view-site" th:href="@{/admin/bookings}">Booking requests</a></div>
+        <div class="admin-page-heading"><div><h2>Inventory and allocations</h2><p>Track individually tagged items and quantity-only allocations. Issuing and returns are recorded on approved requests.</p></div></div>
+        <div th:if="${param.updated}" class="alert admin-alert alert-success">Equipment allocation updated.</div>
+        <div th:if="${param.error}" class="alert admin-alert alert-error">This allocation could not be updated; check its status and return time.</div>
+
+        <section class="admin-table-card mb-4">
+            <div class="table-card-heading"><div><h3>Individual equipment inventory</h3><p>Current tagged stock and recorded condition notes.</p></div><span class="table-count" th:text="${#lists.size(assets)} + ' assets'">0 assets</span></div>
+            <div class="table-scroll"><table class="admin-table equipment-inventory-table"><thead><tr><th>Asset tag</th><th>Equipment</th><th>Status</th><th>Note</th></tr></thead><tbody>
+                <tr th:each="asset : ${assets}"><td><span class="table-primary-text" th:text="${asset.assetTag}"></span></td><td th:text="${asset.resourceName}"></td><td><span class="account-status-pill account-active" th:text="${asset.assetStatus}"></span></td><td th:text="${asset.notes ?: '—'}"></td></tr>
+                <tr th:if="${#lists.isEmpty(assets)}"><td colspan="4"><div class="admin-empty-state"><h3>No tagged assets</h3><p>No individually tagged equipment has been added yet.</p></div></td></tr>
+            </tbody></table></div>
+        </section>
+
+        <form method="get" class="admin-filters equipment-filters">
+            <label class="filter-search">Search<input type="search" name="search" th:value="${search}" placeholder="Reference, requester, equipment, or asset tag"></label>
+            <label>Allocation status<select name="status"><option value="">All allocation states</option><option th:each="value : ${statuses}" th:value="${value}" th:selected="${selectedStatus == value.name()}" th:text="${value}"></option></select></label>
+            <div class="filter-buttons"><button class="admin-button" type="submit">Apply filters</button><a class="admin-button-secondary" th:href="@{/admin/equipment}">Clear</a></div>
+        </form>
+
+        <section class="admin-table-card">
+            <div class="table-card-heading"><div><h3>Equipment allocations</h3><p>Issue or record returns for approved booking requests.</p></div><span class="table-count" th:text="${#lists.size(allocations)} + ' allocations'">0 allocations</span></div>
+            <div class="table-scroll"><table class="admin-table allocation-admin-table"><thead><tr><th>Request</th><th>Requester</th><th>Equipment / tag</th><th>Quantity</th><th>Status</th><th>Action</th></tr></thead><tbody>
+                <tr th:each="allocation : ${allocations}">
+                    <td><a class="table-primary-text user-name-link" th:href="@{'/admin/bookings/' + ${allocation.bookingId}}" th:text="${allocation.bookingCode}"></a></td>
+                    <td th:text="${allocation.requesterName}"></td>
+                    <td><span class="table-primary-text" th:text="${allocation.resourceName}"></span><small class="table-subtext" th:if="${allocation.assetTag != null}" th:text="${allocation.assetTag}"></small></td>
+                    <td th:text="${allocation.allocatedQuantity}"></td>
+                    <td><span class="account-status-pill" th:classappend="${allocation.equipmentStatus.name() == 'ISSUED'} ? ' account-active' : ' account-inactive'" th:text="${allocation.equipmentStatus}"></span></td>
+                    <td>
+                        <form th:if="${allocation.equipmentStatus.name() == 'RESERVED'}" method="post" th:action="@{'/admin/equipment/' + ${allocation.allocationId} + '/issue'}" class="equipment-action-form"><label class="visually-hidden" th:for="'return-' + ${allocation.allocationId}">Expected return</label><input th:id="'return-' + ${allocation.allocationId}" type="datetime-local" name="expectedReturn" class="form-control" required><button class="admin-button" type="submit">Issue</button></form>
+                        <form th:if="${allocation.equipmentStatus.name() == 'ISSUED'}" method="post" th:action="@{'/admin/equipment/' + ${allocation.allocationId} + '/receive'}" class="equipment-action-form"><label class="visually-hidden" th:for="'condition-' + ${allocation.allocationId}">Return condition</label><select th:id="'condition-' + ${allocation.allocationId}" name="condition" class="form-select"><option th:each="condition : ${returnConditions}" th:value="${condition}" th:text="${condition}"></option></select><label class="visually-hidden" th:for="'note-' + ${allocation.allocationId}">Condition note</label><input th:id="'note-' + ${allocation.allocationId}" name="note" class="form-control" placeholder="Condition note"><button class="admin-button admin-button-secondary" type="submit">Receive</button></form>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(allocations)}"><td colspan="6"><div class="admin-empty-state"><h3>No allocations found</h3><p>Try adjusting your search or status filter.</p></div></td></tr>
+            </tbody></table></div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

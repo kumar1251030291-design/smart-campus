@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>User Details | Smart Campus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css(v=4)}"><link rel="stylesheet" th:href="@{/css/admin.css(v=2)}">
+</head>
+<body class="admin-page"><div class="admin-shell">
+    <aside th:replace="~{fragments/admin-sidebar :: sidebar('users')}"></aside>
+    <main class="admin-main">
+        <header class="admin-topbar"><div><span class="admin-kicker">ADMINISTRATION / COMMUNITY</span><h1>User details</h1></div><a class="admin-view-site" th:href="@{/admin/users}">← Back to users</a></header>
+        <section class="user-detail-card">
+            <div class="user-detail-top"><span class="detail-avatar" th:text="${#strings.substring(campusUser.fullName, 0, 1)}">U</span><div><p class="admin-eyebrow">CAMPUS ACCOUNT</p><h2 th:text="${campusUser.fullName}">Campus User</h2><p th:text="${campusUser.email}">user@college.edu</p></div><span class="account-status-pill" th:classappend="${campusUser.accountStatus.name() == 'ACTIVE'} ? ' account-active' : ' account-inactive'" th:text="${campusUser.accountStatus.name()}">ACTIVE</span></div>
+            <dl class="detail-grid">
+                <div><dt>Role</dt><dd th:text="${#strings.replace(campusUser.role.name(), '_', ' ')}">Student</dd></div>
+                <div><dt>Department</dt><dd th:text="${campusUser.department == null ? '—' : campusUser.department}">Computing</dd></div>
+                <div th:if="${campusUser.yearOfStudy != null}"><dt>Academic year</dt><dd th:text="${campusUser.yearOfStudy}">2</dd></div>
+                <div th:if="${campusUser.rollNumber != null}"><dt>Roll number</dt><dd th:text="${campusUser.rollNumber}">CS-204</dd></div>
+                <div th:if="${campusUser.clubName != null}"><dt>Club</dt><dd th:text="${campusUser.clubName}">Robotics Club</dd></div>
+                <div><dt>Registration date</dt><dd th:text="${campusUser.registrationDate == null ? '—' : #temporals.format(campusUser.registrationDate, 'dd MMM yyyy, HH:mm')}">31 Oct 2026</dd></div>
+            </dl>
+            <div class="detail-actions"><a class="admin-button-secondary" th:href="@{/admin/users}">Back to user list</a><span class="self-account-label" th:if="${campusUser.userId == currentAdminId}">Your own account cannot be deactivated here.</span><form th:unless="${campusUser.userId == currentAdminId}" method="post" th:action="@{/admin/users/{id}/status(id=${campusUser.userId})}"><input type="hidden" name="status" th:value="${campusUser.accountStatus.name() == 'ACTIVE' ? 'DISABLED' : 'ACTIVE'}"><button class="admin-button" th:classappend="${campusUser.accountStatus.name() == 'ACTIVE'} ? ' button-danger' : ''" type="submit" th:text="${campusUser.accountStatus.name() == 'ACTIVE' ? 'Deactivate account' : 'Activate account'}">Deactivate account</button></form></div>
+        </section>
+        <footer class="admin-footer">Sensitive credential fields are never shown on this page.</footer>
+    </main>
+</div></body></html>

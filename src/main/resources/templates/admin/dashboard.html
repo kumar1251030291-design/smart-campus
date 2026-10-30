@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Dashboard | Smart Campus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css(v=4)}"><link rel="stylesheet" th:href="@{/css/admin.css(v=2)}">
+</head>
+<body class="admin-page">
+<div class="admin-shell">
+    <aside th:replace="~{fragments/admin-sidebar :: sidebar('dashboard')}"></aside>
+    <main class="admin-main">
+        <header class="admin-topbar"><div><span class="admin-kicker">SMART CAMPUS / ADMIN</span><h1>Dashboard</h1></div><a class="admin-view-site" th:href="@{/}">View campus site <span>↗</span></a></header>
+        <section class="admin-welcome"><div><p class="admin-eyebrow">CAMPUS OVERVIEW</p><h2>Good day, <span th:text="${loggedInUserName}">Administrator</span></h2><p>Here is the latest view of campus resources and registered accounts.</p></div><a class="admin-primary-link" th:href="@{/admin/resources/new}">＋ Add a resource</a></section>
+
+        <section class="stats-grid" aria-label="Campus summary">
+            <article class="stat-card stat-highlight"><span class="stat-icon">⌂</span><span class="stat-label">Total resources</span><strong th:text="${stats.totalResources}">0</strong><small>Across campus</small></article>
+            <article class="stat-card"><span class="stat-icon">▣</span><span class="stat-label">Classrooms</span><strong th:text="${stats.classrooms}">0</strong><small>Learning spaces</small></article>
+            <article class="stat-card"><span class="stat-icon">⚗</span><span class="stat-label">Laboratories</span><strong th:text="${stats.laboratories}">0</strong><small>Practical learning</small></article>
+            <article class="stat-card"><span class="stat-icon">⚙</span><span class="stat-label">Equipment</span><strong th:text="${stats.equipment}">0</strong><small>Available inventory</small></article>
+            <article class="stat-card"><span class="stat-icon">◇</span><span class="stat-label">Facilities</span><strong th:text="${stats.facilities}">0</strong><small>Campus venues</small></article>
+            <article class="stat-card"><span class="stat-icon">♙</span><span class="stat-label">Students</span><strong th:text="${stats.students}">0</strong><small>Registered accounts</small></article>
+            <article class="stat-card"><span class="stat-icon">♧</span><span class="stat-label">Club representatives</span><strong th:text="${stats.clubRepresentatives}">0</strong><small>Registered accounts</small></article>
+            <article class="stat-card"><span class="stat-icon">●</span><span class="stat-label">Active accounts</span><strong th:text="${stats.activeAccounts}">0</strong><small>Can sign in</small></article>
+            <article class="stat-card"><span class="stat-icon">○</span><span class="stat-label">Inactive accounts</span><strong th:text="${stats.inactiveAccounts}">0</strong><small>Sign in disabled</small></article>
+        </section>
+
+        <section id="analytics" class="analytics-section">
+            <div class="section-title-row"><div><p class="admin-eyebrow">LIVE DATABASE COUNTS</p><h2>Campus analytics</h2></div><span class="data-badge"><i></i> Current records</span></div>
+            <div class="analytics-grid">
+                <article class="analytics-card">
+                    <div class="analytics-card-head"><div><h3>Resource distribution</h3><p>Catalogue entries by category</p></div><span class="analytics-mark">▤</span></div>
+                    <div class="bar-list">
+                        <div class="bar-row"><div class="bar-label"><span>Classrooms</span><strong th:text="${stats.classrooms}">0</strong></div><div class="bar-track"><span class="bar-sage" th:style="'width:' + ${stats.classroomsPercent()} + '%' "></span></div></div>
+                        <div class="bar-row"><div class="bar-label"><span>Laboratories</span><strong th:text="${stats.laboratories}">0</strong></div><div class="bar-track"><span class="bar-mint" th:style="'width:' + ${stats.laboratoriesPercent()} + '%' "></span></div></div>
+                        <div class="bar-row"><div class="bar-label"><span>Equipment</span><strong th:text="${stats.equipment}">0</strong></div><div class="bar-track"><span class="bar-green" th:style="'width:' + ${stats.equipmentPercent()} + '%' "></span></div></div>
+                        <div class="bar-row"><div class="bar-label"><span>Facilities</span><strong th:text="${stats.facilities}">0</strong></div><div class="bar-track"><span class="bar-pale" th:style="'width:' + ${stats.facilitiesPercent()} + '%' "></span></div></div>
+                    </div>
+                    <a class="analytics-link" th:href="@{/admin/resources}">Manage resources <span>→</span></a>
+                </article>
+                <article class="analytics-card">
+                    <div class="analytics-card-head"><div><h3>Community accounts</h3><p>Students and club representatives</p></div><span class="analytics-mark">♙</span></div>
+                    <div class="split-summary"><div><strong th:text="${stats.students}">0</strong><span>Students</span></div><div><strong th:text="${stats.clubRepresentatives}">0</strong><span>Club representatives</span></div></div>
+                    <div class="split-track"><span class="bar-sage" th:style="'width:' + ${stats.studentsPercent()} + '%' "></span><span class="bar-mint" th:style="'width:' + ${stats.clubsPercent()} + '%' "></span></div>
+                    <div class="legend-row"><span><i class="legend-sage"></i>Students</span><span><i class="legend-mint"></i>Club representatives</span></div>
+                    <a class="analytics-link" th:href="@{/admin/users}">Manage accounts <span>→</span></a>
+                </article>
+                <article class="analytics-card account-analytics">
+                    <div class="analytics-card-head"><div><h3>Account status</h3><p>Active and inactive accounts</p></div><span class="analytics-mark">◉</span></div>
+                    <div class="split-summary"><div><strong th:text="${stats.activeAccounts}">0</strong><span>Active</span></div><div><strong th:text="${stats.inactiveAccounts}">0</strong><span>Inactive</span></div></div>
+                    <div class="split-track"><span class="bar-sage" th:style="'width:' + ${stats.activePercent()} + '%' "></span><span class="bar-muted" th:style="'width:' + ${stats.inactivePercent()} + '%' "></span></div>
+                    <div class="legend-row"><span><i class="legend-sage"></i>Active</span><span><i class="legend-muted"></i>Inactive</span></div>
+                    <a class="analytics-link" th:href="@{/admin/users}">Review users <span>→</span></a>
+                </article>
+            </div>
+        </section>
+        <footer class="admin-footer">Smart Campus Administration <span>Java · Spring Boot · H2</span></footer>
+    </main>
+</div>
+</body>
+</html>

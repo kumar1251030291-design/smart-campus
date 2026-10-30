@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Explore classrooms, labs, equipment and event spaces across campus.">
+    <title>Explore Resources | Smart Campus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css(v=4)}">
+</head>
+<body class="catalogue-page">
+<header th:replace="~{fragments/navigation :: mainNavigation}"></header>
+
+<main>
+    <section class="catalogue-hero">
+        <div class="container site-container">
+            <p class="eyebrow"><span class="eyebrow-line"></span> CAMPUS RESOURCE CATALOGUE</p>
+            <div class="catalogue-heading-row">
+                <div>
+                    <h1>Explore what campus <span>has to offer.</span></h1>
+                    <p class="catalogue-intro">Find learning spaces, practical equipment and places to bring people together.</p>
+                </div>
+                <div class="catalogue-count"><strong th:text="${#lists.size(resources)}">69</strong><span>resources<br>shown</span></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="catalogue-content">
+        <div class="container site-container">
+            <form class="resource-filters" method="get" th:action="@{/resources}">
+                <div class="resource-search-field">
+                    <label for="resourceSearch">Search by name or description</label>
+                    <div class="search-input-wrap">
+                        <span class="search-symbol" aria-hidden="true">&#9906;</span>
+                        <input id="resourceSearch" type="search" name="search" th:value="${search}" placeholder="Try “Computer Lab” or “Projector”">
+                    </div>
+                </div>
+                <div class="resource-filter-field">
+                    <label for="categoryFilter">Category</label>
+                    <select id="categoryFilter" name="category">
+                        <option value="">All categories</option>
+                        <option th:each="categoryOption : ${categories}"
+                                th:value="${categoryOption.name()}"
+                                th:text="${categoryOption.displayName}"
+                                th:selected="${categoryOption.name() == selectedCategory}">Classroom</option>
+                    </select>
+                </div>
+                <div class="resource-filter-field">
+                    <label for="availabilityFilter">Availability</label>
+                    <select id="availabilityFilter" name="availability">
+                        <option value="">Any status</option>
+                        <option th:each="statusOption : ${statuses}"
+                                th:value="${statusOption.name()}"
+                                th:text="${statusOption.displayName}"
+                                th:selected="${statusOption.name() == selectedAvailability}">Available</option>
+                    </select>
+                </div>
+                <div class="resource-filter-field">
+                    <label for="groupFilter">Campus collection</label>
+                    <select id="groupFilter" name="group"><option value="">All collections</option><option th:each="groupOption:${groups}" th:value="${groupOption.name()}" th:text="${groupOption.displayName}" th:selected="${groupOption.name() == selectedGroup}"></option></select>
+                </div>
+                <div class="resource-filter-field"><label for="minimumCapacity">Minimum capacity / quantity</label><input id="minimumCapacity" name="minimumCapacity" type="number" min="0" th:value="${minimumCapacity}" placeholder="Any"></div>
+                <div class="resource-filter-field"><label for="maximumCapacity">Maximum capacity / quantity</label><input id="maximumCapacity" name="maximumCapacity" type="number" min="0" th:value="${maximumCapacity}" placeholder="Any"></div>
+                <div class="filter-actions">
+                    <button type="submit" class="filter-submit">Apply filters</button>
+                    <a class="filter-reset" th:href="@{/resources}">Reset</a>
+                </div>
+            </form>
+
+            <div class="catalogue-results-heading">
+                <h2 th:text="${filtersApplied} ? 'Matching resources' : 'Campus resources'">Campus resources</h2>
+                <span th:text="${#lists.size(resources)} + (${#lists.size(resources)} == 1 ? ' result' : ' results')">69 results</span>
+            </div>
+
+            <div class="resource-grid" th:if="${!#lists.isEmpty(resources)}">
+                <article class="resource-card" th:each="resource : ${resources}">
+                    <div class="resource-card-topline">
+                        <span class="category-tag" th:text="${resource.category.displayName}">Classroom</span>
+                        <span class="availability-pill" th:classappend="${' status-' + resource.availabilityStatus.cssClass}"
+                              th:text="${resource.availabilityStatus.displayName}">Available</span>
+                    </div>
+                    <h3 th:text="${resource.name}">Classroom A101</h3>
+                    <p class="resource-description" th:text="${resource.description}">Bright lecture room with a wall display and whiteboard.</p>
+                    <div class="resource-card-footer">
+                        <span class="resource-location"><span aria-hidden="true">&#9906;</span><span th:text="${resource.location}">Block A, Floor 1</span></span>
+                        <span class="resource-capacity" th:text="${resource.capacityOrQuantityLabel}">60 seats</span>
+                    </div>
+                    <div class="resource-card-actions"><a class="resource-action-link" th:href="@{'/resources/' + ${resource.id}}">View details</a><a class="resource-action-link primary" th:if="${loggedInUserRole == 'STUDENT'}" th:href="@{'/student/bookings/new?resourceId=' + ${resource.id}}">Book / Send Request</a><a class="resource-action-link primary" th:if="${loggedInUserRole == 'CLUB_REPRESENTATIVE'}" th:href="@{'/club/bookings/new?resourceId=' + ${resource.id}}">Book / Send Request</a></div>
+                </article>
+            </div>
+
+            <div class="empty-resources" th:if="${#lists.isEmpty(resources)}" role="status">
+                <span class="empty-icon" aria-hidden="true">&#9711;</span>
+                <h2>No resources match those filters</h2>
+                <p>Try a different name, category or availability status.</p>
+                <a th:href="@{/resources}">Show all resources</a>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <div class="container site-container footer-inner">
+        <a class="brand footer-brand" th:href="@{/}"><span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span><span>smart<span class="brand-campus">campus</span></span></a>
+        <span>Thoughtfully shaping campus life.</span>
+        <span class="footer-year">A COLLEGE PROJECT &#183; 2026</span>
+    </div>
+</footer>
+</body>
+</html>

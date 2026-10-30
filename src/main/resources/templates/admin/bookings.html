@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Booking requests | Smart Campus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css(v=4)}">
+    <link rel="stylesheet" th:href="@{/css/admin.css(v=2)}">
+</head>
+<body class="admin-page">
+<div class="admin-shell">
+    <aside th:replace="~{fragments/admin-sidebar :: sidebar('bookings')}"></aside>
+    <main class="admin-main">
+        <div class="admin-topbar"><div><span class="admin-kicker">ADMINISTRATION</span><h1>Booking requests</h1></div><a class="admin-view-site" th:href="@{/resources}">View resource catalogue</a></div>
+        <div class="admin-page-heading"><div><h2>Request review</h2><p>Review requests, check resource fit, and record decisions.</p></div></div>
+        <div th:if="${param.updated}" class="alert admin-alert alert-success">Booking request updated.</div>
+        <div th:if="${param.error}" class="alert admin-alert alert-error">That operation could not be completed.</div>
+
+        <form class="admin-filters booking-filters" method="get">
+            <label class="filter-search">Search<input type="search" name="search" th:value="${search}" placeholder="Reference, requester, or resource"></label>
+            <label>Status<select name="status"><option value="">All statuses</option><option th:each="item : ${statuses}" th:value="${item}" th:selected="${selectedStatus == item.name()}" th:text="${item.displayName}"></option></select></label>
+            <label>Resource category<select name="category"><option value="">All categories</option><option th:each="item : ${categories}" th:value="${item}" th:selected="${selectedCategory == item.name()}" th:text="${item.displayName}"></option></select></label>
+            <label>Event date<input type="date" name="date" th:value="${date}"></label>
+            <div class="filter-buttons"><button class="admin-button" type="submit">Apply filters</button><a class="admin-button-secondary" th:href="@{/admin/bookings}">Clear</a></div>
+        </form>
+
+        <section class="admin-table-card">
+            <div class="table-card-heading"><div><h3>All booking requests</h3><p>Request times are shown in the campus local time zone.</p></div><span class="table-count" th:text="${#lists.size(requests)} + ' results'">0 results</span></div>
+            <div class="table-scroll">
+                <table class="admin-table booking-admin-table">
+                    <thead><tr><th>Reference</th><th>Event</th><th>Requester</th><th>Schedule</th><th>Status</th><th>Action</th></tr></thead>
+                    <tbody>
+                    <tr th:each="request : ${requests}">
+                        <td><span class="table-primary-text" th:text="${request.bookingCode}">SC-000000</span></td>
+                        <td><span class="table-primary-text" th:text="${request.eventTitle}">Event title</span><small class="table-subtext" th:text="${request.eventType.displayName}">Event type</small></td>
+                        <td><span class="table-primary-text" th:text="${request.requesterName}">Requester</span><small class="table-subtext" th:text="${request.requesterRole.displayName} + ' · ' + ${request.department}">Role · Department</small></td>
+                        <td><span class="table-primary-text" th:text="${#temporals.format(request.eventDate, 'dd MMM yyyy')}">01 Nov 2026</span><small class="table-subtext" th:text="${#temporals.format(request.startTime, 'hh:mm a')} + ' – ' + ${#temporals.format(request.endTime, 'hh:mm a')}">01:30 AM – 04:30 AM</small></td>
+                        <td><span class="booking-status-pill table-booking-status" th:classappend="' status-' + ${#strings.toLowerCase(request.status.name())}" th:text="${request.status.displayName}">Pending</span></td>
+                        <td><a class="admin-button-secondary table-review-link" th:href="@{'/admin/bookings/' + ${request.bookingId}}">Review</a></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(requests)}"><td colspan="6"><div class="admin-empty-state"><span aria-hidden="true">○</span><h3>No booking requests found</h3><p>Try adjusting the search or filters.</p></div></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Resource Management | Smart Campus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css(v=4)}"><link rel="stylesheet" th:href="@{/css/admin.css(v=2)}">
+</head>
+<body class="admin-page"><div class="admin-shell">
+    <aside th:replace="~{fragments/admin-sidebar :: sidebar('resources')}"></aside>
+    <main class="admin-main">
+        <header class="admin-topbar"><div><span class="admin-kicker">ADMINISTRATION / CATALOGUE</span><h1>Resource management</h1></div><a class="admin-view-site" th:href="@{/resources}">View catalogue <span>↗</span></a></header>
+        <div class="admin-alert alert-success" th:if="${param.created}">Resource added to the campus catalogue.</div>
+        <div class="admin-alert alert-success" th:if="${param.updated}">Resource details saved.</div>
+        <div class="admin-alert alert-success" th:if="${param.deleted}">Resource deleted from the catalogue.</div>
+        <div class="admin-alert alert-success" th:if="${param.statusUpdated}">Resource availability updated.</div>
+        <div class="admin-alert alert-error" th:if="${param.error}">That resource could not be found or the request could not be completed.</div>
+        <section class="admin-page-heading"><div><p class="admin-eyebrow">CAMPUS INVENTORY</p><h2>Resources <span class="result-count" th:text="${#lists.size(resources)} + ' shown'">0 shown</span></h2><p>Keep learning spaces, equipment and facilities accurate and up to date.</p></div><a class="admin-primary-link" th:href="@{/admin/resources/new}">＋ Add resource</a></section>
+
+        <form class="admin-filters" method="get" th:action="@{/admin/resources}">
+            <label class="filter-search"><span>Search resources</span><input type="search" name="search" th:value="${search}" placeholder="Search by name"></label>
+            <label><span>Category</span><select name="category"><option value="">All categories</option><option th:each="categoryOption : ${categories}" th:value="${categoryOption.name()}" th:text="${categoryOption.displayName}" th:selected="${categoryOption.name() == selectedCategory}">Classroom</option></select></label>
+            <label><span>Availability</span><select name="availability"><option value="">Any status</option><option th:each="statusOption : ${statuses}" th:value="${statusOption.name()}" th:text="${statusOption.displayName}" th:selected="${statusOption.name() == selectedAvailability}">Available</option></select></label>
+            <div class="filter-buttons"><button class="admin-button" type="submit">Apply filters</button><a class="admin-button-secondary" th:href="@{/admin/resources}">Reset</a></div>
+        </form>
+
+        <section class="admin-table-card">
+            <div class="table-card-heading"><div><h3>Campus resources</h3><p>Search, edit details, update availability or remove an entry.</p></div><span class="table-count" th:text="${#lists.size(resources)} + ' records'">0 records</span></div>
+            <div class="table-scroll" th:if="${!#lists.isEmpty(resources)}">
+                <table class="admin-table resource-admin-table"><thead><tr><th>Resource</th><th>Category</th><th>Location</th><th>Capacity / quantity</th><th>Availability</th><th>Actions</th></tr></thead>
+                    <tbody><tr th:each="resource : ${resources}">
+                        <td><strong class="table-primary-text" th:text="${resource.name}">Classroom A101</strong><small class="table-subtext" th:text="${resource.description}">Room description</small></td>
+                        <td><span class="table-category" th:text="${resource.category.displayName}">Classroom</span></td>
+                        <td th:text="${resource.location}">Block A</td><td th:text="${resource.capacityOrQuantityLabel}">60 seats</td>
+                        <td><form class="availability-form" method="post" th:action="@{/admin/resources/{id}/availability(id=${resource.id})}">
+                            <select name="availabilityStatus" aria-label="Set availability" th:class="'status-select status-' + ${resource.availabilityStatus.cssClass}">
+                                <option th:each="statusOption : ${statuses}" th:value="${statusOption.name()}" th:text="${statusOption.displayName}" th:selected="${statusOption == resource.availabilityStatus}">Available</option>
+                            </select><button class="small-save-button" type="submit">Save</button>
+                        </form></td>
+                        <td><div class="row-actions"><a class="table-action" th:href="@{/admin/resources/{id}/edit(id=${resource.id})}">Edit</a><form method="post" th:action="@{/admin/resources/{id}/delete(id=${resource.id})}" onsubmit="return confirm('Delete this resource from the catalogue?')"><button class="table-action action-delete" type="submit">Delete</button></form></div></td>
+                    </tr></tbody>
+                </table>
+            </div>
+            <div class="admin-empty-state" th:if="${#lists.isEmpty(resources)}"><span>⌕</span><h3>No matching resources</h3><p>Try another search or clear the filters.</p><a th:href="@{/admin/resources}">Show all resources</a></div>
+        </section>
+        <footer class="admin-footer">Smart Campus Administration <span th:text="${#lists.size(resources)} + ' resources in this view'"></span></footer>
+    </main>
+</div></body></html>

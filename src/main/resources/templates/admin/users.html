@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>User Management | Smart Campus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css(v=4)}"><link rel="stylesheet" th:href="@{/css/admin.css(v=2)}">
+</head>
+<body class="admin-page"><div class="admin-shell">
+    <aside th:replace="~{fragments/admin-sidebar :: sidebar('users')}"></aside>
+    <main class="admin-main">
+        <header class="admin-topbar"><div><span class="admin-kicker">ADMINISTRATION / COMMUNITY</span><h1>User management</h1></div><a class="admin-view-site" th:href="@{/}">View campus site <span>↗</span></a></header>
+        <div class="admin-alert alert-success" th:if="${param.updated}">Account status updated.</div>
+        <div class="admin-alert alert-error" th:if="${param.error == 'self'}">You cannot deactivate your own administrator account.</div>
+        <div class="admin-alert alert-error" th:if="${param.error == 'not-found'}">That user could not be found.</div>
+        <section class="admin-page-heading"><div><p class="admin-eyebrow">CAMPUS COMMUNITY</p><h2>Registered users <span class="result-count" th:text="${#lists.size(users)} + ' shown'">0 shown</span></h2><p>Review account details and manage access for students and club representatives.</p></div></section>
+
+        <form class="admin-filters user-filters" method="get" th:action="@{/admin/users}">
+            <label class="filter-search"><span>Search users</span><input type="search" name="search" th:value="${search}" placeholder="Name or email"></label>
+            <label><span>Role</span><select name="role"><option value="">All roles</option><option th:each="roleOption : ${roles}" th:value="${roleOption.name()}" th:text="${#strings.replace(roleOption.name(), '_', ' ')}" th:selected="${roleOption.name() == selectedRole}">Student</option></select></label>
+            <label><span>Account status</span><select name="status"><option value="">All statuses</option><option th:each="statusOption : ${accountStatuses}" th:value="${statusOption.name()}" th:text="${statusOption.name()}" th:selected="${statusOption.name() == selectedStatus}">ACTIVE</option></select></label>
+            <div class="filter-buttons"><button class="admin-button" type="submit">Apply filters</button><a class="admin-button-secondary" th:href="@{/admin/users}">Reset</a></div>
+        </form>
+
+        <section class="admin-table-card">
+            <div class="table-card-heading"><div><h3>Campus accounts</h3><p>Account details are shown without credential data.</p></div><span class="table-count" th:text="${#lists.size(users)} + ' users'">0 users</span></div>
+            <div class="table-scroll" th:if="${!#lists.isEmpty(users)}">
+                <table class="admin-table users-admin-table"><thead><tr><th>Name</th><th>Role</th><th>Department</th><th>Registered</th><th>Status</th><th>Access</th></tr></thead>
+                    <tbody><tr th:each="campusUser : ${users}">
+                        <td><a class="table-primary-text user-name-link" th:href="@{/admin/users/{id}(id=${campusUser.userId})}" th:text="${campusUser.fullName}">Campus User</a><small class="table-subtext" th:text="${campusUser.email}">name@college.edu</small></td>
+                        <td><span class="role-pill" th:text="${#strings.replace(campusUser.role.name(), '_', ' ')}">Student</span></td>
+                        <td th:text="${campusUser.department == null ? '—' : campusUser.department}">Computing</td>
+                        <td th:text="${campusUser.registrationDate == null ? '—' : #temporals.format(campusUser.registrationDate, 'dd MMM yyyy')}">31 Oct 2026</td>
+                        <td><span class="account-status-pill" th:classappend="${campusUser.accountStatus.name() == 'ACTIVE'} ? ' account-active' : ' account-inactive'" th:text="${campusUser.accountStatus.name()}">ACTIVE</span></td>
+                        <td><span class="self-account-label" th:if="${campusUser.userId == currentAdminId}">Current account</span><form th:unless="${campusUser.userId == currentAdminId}" class="status-action-form" method="post" th:action="@{/admin/users/{id}/status(id=${campusUser.userId})}"><input type="hidden" name="status" th:value="${campusUser.accountStatus.name() == 'ACTIVE' ? 'DISABLED' : 'ACTIVE'}"><button class="table-action" type="submit" th:text="${campusUser.accountStatus.name() == 'ACTIVE' ? 'Deactivate' : 'Activate'}">Deactivate</button></form></td>
+                    </tr></tbody>
+                </table>
+            </div>
+            <div class="admin-empty-state" th:if="${#lists.isEmpty(users)}"><span>⌕</span><h3>No matching accounts</h3><p>Try a different name, email, role or status.</p><a th:href="@{/admin/users}">Show all users</a></div>
+        </section>
+        <footer class="admin-footer">Smart Campus Administration <span th:text="${#lists.size(users)} + ' accounts in this view'"></span></footer>
+    </main>
+</div></body></html>
