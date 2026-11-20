@@ -16,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 public class AdminAccountInitializer {
 
     @Bean
+    @org.springframework.core.annotation.Order(1)
     CommandLineRunner initializeAdminAccount(UserRepository users, PasswordEncoder passwordEncoder,
             @Value("${smartcampus.admin.email:}") String configuredEmail,
             @Value("${smartcampus.admin.password:}") String configuredPassword) {

@@ -15,10 +15,20 @@ public class PortalNotificationRepository {
 
     public boolean create(long recipientId, String title, String message, NotificationType type,
                           Long bookingId, String destination, String eventKey) {
-        return jdbc.update("""
-                MERGE INTO portal_notifications(recipient_user_id,title,message,notification_type,related_booking_id,destination_url,event_key)
-                KEY(event_key) VALUES(?,?,?,?,?,?,?)
-                """, recipientId, title, message, type.name(), bookingId, destination, eventKey) > 0;
+        // Portable upsert keyed on event_key (works on H2 and PostgreSQL).
+        int updated = jdbc.update("""
+                UPDATE portal_notifications SET recipient_user_id=?, title=?, message=?, notification_type=?,
+                    related_booking_id=?, destination_url=? WHERE event_key=?
+                """, recipientId, title, message, type.name(), bookingId, destination, eventKey);
+        if (updated > 0) return true;
+        try {
+            return jdbc.update("""
+                    INSERT INTO portal_notifications(recipient_user_id,title,message,notification_type,related_booking_id,destination_url,event_key)
+                    VALUES(?,?,?,?,?,?,?)
+                    """, recipientId, title, message, type.name(), bookingId, destination, eventKey) > 0;
+        } catch (org.springframework.dao.DuplicateKeyException raced) {
+            return false;
+        }
     }
 
     public List<PortalNotification> recentForUser(long userId, int max) {

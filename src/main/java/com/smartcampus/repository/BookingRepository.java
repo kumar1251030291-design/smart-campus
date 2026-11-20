@@ -41,6 +41,11 @@ public class BookingRepository {
 
     public BookingRepository(JdbcTemplate jdbc) { this.jdbc = jdbc; }
 
+    /** H2 stores identifiers in upper case, PostgreSQL in lower case; generated-key column names must match. */
+    private static String keyColumn(java.sql.Connection connection, String column) throws SQLException {
+        return connection.getMetaData().storesUpperCaseIdentifiers() ? column.toUpperCase(java.util.Locale.ROOT) : column;
+    }
+
     public long insertRequest(CampusUser requester, BookingRequestForm form) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbc.update(connection -> {
@@ -49,7 +54,7 @@ public class BookingRepository {
                         event_title, event_type, purpose, event_date, start_time, end_time, expected_participants,
                         special_requirements, supporting_information, status)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING')
-                    """, new String[]{"BOOKING_ID"});
+                    """, new String[]{keyColumn(connection, "booking_id")});
             statement.setLong(1, requester.getUserId());
             statement.setString(2, requester.getFullName());
             statement.setString(3, requester.getRole().name());
@@ -86,7 +91,7 @@ public class BookingRepository {
         jdbc.update(connection -> {
             PreparedStatement statement = connection.prepareStatement(
                     "INSERT INTO booking_history (booking_id, status_after, action, note, changed_by) VALUES (?, ?, ?, ?, ?)",
-                    new String[]{"HISTORY_ID"});
+                    new String[]{keyColumn(connection, "history_id")});
             statement.setLong(1, bookingId); statement.setString(2, status.name()); statement.setString(3, action);
             statement.setString(4, clean(note)); statement.setLong(5, changedBy); return statement;
         }, key);
@@ -246,15 +251,17 @@ public class BookingRepository {
     }
 
     public int countHistoricalSlotUse(long resourceId, int h2DayOfWeek, LocalTime start, LocalTime end, LocalDate since) {
-        Integer count = jdbc.queryForObject("""
-                SELECT COUNT(DISTINCT br.booking_id) FROM booking_requests br
+        // Weekday filtering happens in Java so the query runs unchanged on H2 and PostgreSQL.
+        java.time.DayOfWeek weekday = java.time.DayOfWeek.of(h2DayOfWeek == 1 ? 7 : h2DayOfWeek - 1);
+        List<LocalDate> dates = jdbc.query("""
+                SELECT DISTINCT br.booking_id, br.event_date FROM booking_requests br
                 JOIN booking_request_items bi ON bi.booking_id=br.booking_id
                 WHERE bi.resource_id=? AND br.event_date>=? AND br.event_date<CURRENT_DATE
-                  AND DAY_OF_WEEK(br.event_date)=? AND br.start_time < ? AND br.end_time > ?
+                  AND br.start_time < ? AND br.end_time > ?
                   AND br.status IN ('APPROVED','COMPLETED')
-                """, Integer.class, resourceId, Date.valueOf(since), h2DayOfWeek,
+                """, (rs, row) -> rs.getDate("event_date").toLocalDate(), resourceId, Date.valueOf(since),
                 Time.valueOf(end), Time.valueOf(start));
-        return count == null ? 0 : count;
+        return (int) dates.stream().filter(date -> date.getDayOfWeek() == weekday).count();
     }
 
     public List<ResourceUsageRecord> findUsageRecords(long resourceId, LocalDate since) {
@@ -269,14 +276,22 @@ public class BookingRepository {
     public void recordCompletedUsage(BookingRequest request, List<BookingRequestItem> items) {
         for (BookingRequestItem item : items) {
             double hours = java.time.Duration.between(request.startTime(), request.endTime()).toMinutes() / 60.0;
-            jdbc.update("""
-                    MERGE INTO resource_usage_history (booking_id, resource_id, requester_role, department, club_name,
-                        start_at, end_at, usage_hours, recorded_at)
-                    KEY (booking_id, resource_id)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-                    """, request.bookingId(), item.resourceId(), request.requesterRole().name(), request.department(),
-                    request.clubName(), Timestamp.valueOf(LocalDateTime.of(request.eventDate(), request.startTime())),
-                    Timestamp.valueOf(LocalDateTime.of(request.eventDate(), request.endTime())), hours);
+            Timestamp startAt = Timestamp.valueOf(LocalDateTime.of(request.eventDate(), request.startTime()));
+            Timestamp endAt = Timestamp.valueOf(LocalDateTime.of(request.eventDate(), request.endTime()));
+            // Portable upsert (works on H2 and PostgreSQL): update the row if it exists, otherwise insert it.
+            int updated = jdbc.update("""
+                    UPDATE resource_usage_history SET requester_role=?, department=?, club_name=?, start_at=?, end_at=?,
+                        usage_hours=?, recorded_at=CURRENT_TIMESTAMP WHERE booking_id=? AND resource_id=?
+                    """, request.requesterRole().name(), request.department(), request.clubName(), startAt, endAt, hours,
+                    request.bookingId(), item.resourceId());
+            if (updated == 0) {
+                jdbc.update("""
+                        INSERT INTO resource_usage_history (booking_id, resource_id, requester_role, department, club_name,
+                            start_at, end_at, usage_hours, recorded_at)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                        """, request.bookingId(), item.resourceId(), request.requesterRole().name(), request.department(),
+                        request.clubName(), startAt, endAt, hours);
+            }
         }
     }
 
