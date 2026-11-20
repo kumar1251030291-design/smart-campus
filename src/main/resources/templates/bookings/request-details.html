@@ -8,8 +8,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/styles.css(v=4)}">
-    <link rel="stylesheet" th:href="@{/css/portal.css(v=2)}">
+    <link rel="stylesheet" th:href="@{/css/styles.css(v=5)}">
+    <link rel="stylesheet" th:href="@{/css/portal.css(v=5)}">
 </head>
 <body>
 <header th:replace="~{fragments/navigation :: mainNavigation}"></header>
@@ -21,7 +21,7 @@
         <div th:if="${param.error}" class="alert alert-warning mb-3">That action could not be completed. Check the request status and try again.</div>
 
         <section class="request-detail-hero">
-            <div><p class="portal-kicker" th:text="${request.bookingCode}">Booking reference</p><h1 class="portal-heading" th:text="${request.eventTitle}">Event title</h1><span class="portal-pill" th:text="${request.status.displayName}">Pending</span></div>
+            <div><p class="portal-kicker" th:text="${request.bookingCode}">Booking reference</p><h1 class="portal-heading" th:text="${request.eventTitle}">Event title</h1><span class="portal-pill" th:classappend="' status-' + ${#strings.toLowerCase(request.status.name())}" th:text="${request.status.displayName}">Pending</span></div>
             <div class="portal-detail-card request-submitted-card"><small>Submitted</small><strong th:text="${submittedDisplay}">01 Nov 2030, 09:00 AM</strong></div>
         </section>
 
@@ -53,8 +53,14 @@
                 </div>
 
                 <div class="portal-alert request-confirmation" th:if="${request.status.name() == 'APPROVED' or request.status.name() == 'COMPLETED'}">Approved resources and quantities match the entries above. Venue assignment: <span th:each="item : ${items}" th:if="${item.category.name() == 'CLASSROOM' or item.category.name() == 'FACILITY'}" th:text="${item.resourceName} + ' '"></span><span th:if="${#lists.isEmpty(items)}">See the requested resources list.</span></div>
-                <div th:if="${request.decisionNote}" class="portal-detail-card request-decision-note"><strong>Latest administrator update</strong><p th:text="${request.decisionNote}"></p></div>
-                <div th:if="${request.alternativeDate}" class="portal-detail-card request-alternative"><strong>Alternative time proposed</strong><p th:text="${#temporals.format(request.alternativeDate, 'dd MMM yyyy')} + ' · ' + ${#temporals.format(request.alternativeStartTime, 'hh:mm a')} + ' – ' + ${#temporals.format(request.alternativeEndTime, 'hh:mm a')}"></p></div>
+                <div th:if="${request.decisionNote}" class="portal-detail-card request-decision-note">
+                    <strong th:text="${request.status.name() == 'APPROVED'} ? 'Reason for approval' : (${request.status.name() == 'REJECTED'} ? 'Reason for rejection' : (${request.status.name() == 'ALTERNATIVE_PROPOSED'} ? 'Why an alternative was suggested' : (${request.status.name() == 'ADDITIONAL_INFORMATION_REQUIRED'} ? 'Information requested' : 'Latest administrator update')))">Latest administrator update</strong>
+                    <p th:text="${request.decisionNote}"></p></div>
+                <div th:if="${request.alternativeDate}" class="portal-detail-card request-alternative"><strong>Suggested alternative time</strong><p th:text="${#temporals.format(request.alternativeDate, 'dd MMM yyyy')} + ' · ' + ${#temporals.format(request.alternativeStartTime, 'hh:mm a')} + ' – ' + ${#temporals.format(request.alternativeEndTime, 'hh:mm a')}"></p></div>
+                <div class="decision-letter">
+                    <div><strong>Decision letter (PDF)</strong><small>Status, administrator reason, any suggested alternative and the full history.</small></div>
+                    <a class="portal-action" target="_blank" th:href="@{'/' + ${memberPath} + '/bookings/' + ${request.bookingId} + '/decision.pdf'}">Download PDF</a>
+                </div>
 
                 <div class="request-detail-subsection" th:if="${!#lists.isEmpty(allocations)}">
                     <h2 class="request-section-title">Equipment allocation and return</h2>

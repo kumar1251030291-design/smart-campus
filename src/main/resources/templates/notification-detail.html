@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${notification.title} + ' | Notifications | Smart Campus'">Notification | Smart Campus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css(v=5)}">
+    <link rel="stylesheet" th:href="@{/css/portal.css(v=5)}">
+</head>
+<body>
+<header th:replace="~{fragments/navigation :: mainNavigation}"></header>
+<main class="portal-shell notification-page">
+    <div class="portal-container notification-detail-container">
+        <a class="resource-back-link" th:href="@{/notifications}">← Back to notifications</a>
+        <section class="portal-panel notification-detail-panel" th:classappend="${notification.unread()} ? ' notification-unread' : ''">
+            <div class="notification-detail-topline">
+                <span class="notification-type" th:text="${notification.type.displayName}">Booking update</span>
+                <span class="notification-state" th:classappend="${notification.unread()} ? ' unread' : ' read'"
+                      th:text="${notification.unread()} ? 'Unread' : 'Read'">Unread</span>
+            </div>
+            <h1 class="notification-detail-title" th:text="${notification.title}">Notification title</h1>
+            <time class="notification-detail-date" th:datetime="${notification.occurredAt}"
+                  th:text="${#temporals.format(notification.occurredAt, 'dd MMM yyyy, hh:mm a')}">31 Oct 2026, 09:15 AM</time>
+            <p class="notification-detail-message" th:text="${notification.message}">Notification message</p>
+            <div class="notification-detail-actions">
+                <a class="portal-action" th:if="${notification.destinationUrl != null}"
+                   th:href="@{${notification.destinationUrl}}">Open related update</a>
+                <a class="portal-action secondary" target="_blank"
+                   th:if="${notification.bookingId != null and loggedInUserRole != null}"
+                   th:href="@{'/' + (${loggedInUserRole == 'STUDENT'} ? 'student' : 'club') + '/bookings/' + ${notification.bookingId} + '/decision.pdf'}">Download decision letter (PDF)</a>
+                <form th:if="${notification.unread()}" method="post"
+                      th:action="@{/notifications/{id}/read(id=${notification.notificationId})}">
+                    <button class="portal-action secondary" type="submit">Mark as read</button>
+                </form>
+            </div>
+            <p class="notification-feedback" th:if="${param.readUpdated != null}">Notification marked as read.</p>
+        </section>
+    </div>
+</main>
+</body>
+</html>

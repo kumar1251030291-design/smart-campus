@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css(v=5)}"><link rel="stylesheet" th:href="@{/css/portal.css(v=5)}">
+    <title th:text="${announcement.title} + ' | Smart Campus'">Announcement | Smart Campus</title>
+</head>
+<body>
+<header th:replace="~{fragments/navigation :: mainNavigation}"></header>
+<main class="portal-shell"><div class="portal-container">
+    <a class="resource-back-link" th:href="@{/announcements}">← All announcements</a>
+    <div class="dash-grid mt-2">
+        <article class="portal-panel dash-span-8">
+            <span class="announcement-meta"><span class="portal-pill" th:text="${announcement.categoryLabel()}"></span><small th:text="'Published ' + ${#temporals.format(announcement.publishedOn, 'dd MMM yyyy')}"></small></span>
+            <h1 class="portal-heading mt-2" th:text="${announcement.title}">Title</h1>
+            <img class="announcement-hero-img" th:src="@{${announcement.imagePath}}" th:alt="${announcement.title}">
+            <p class="lead fs-6 fw-semibold" th:text="${announcement.summary}"></p>
+            <p class="announcement-body" th:text="${announcement.body}"></p>
+        </article>
+        <aside class="portal-panel dash-span-4">
+            <div class="dash-panel-head"><h2>More announcements</h2></div>
+            <a class="dash-list-item" th:each="item : ${otherAnnouncements}" th:href="@{/announcements/{id}(id=${item.announcementId})}">
+                <span><strong th:text="${item.title}"></strong><small th:text="${#temporals.format(item.publishedOn, 'dd MMM yyyy')}"></small></span>
+            </a>
+        </aside>
+    </div>
+</div></main>
+</body></html>

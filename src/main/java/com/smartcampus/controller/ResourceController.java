@@ -4,7 +4,11 @@ import com.smartcampus.enums.AvailabilityStatus;
 import com.smartcampus.enums.ResourceCategory;
 import com.smartcampus.enums.ResourceDiscoveryGroup;
 import com.smartcampus.model.Resource;
+import com.smartcampus.enums.UserRole;
+import com.smartcampus.model.CampusUser;
 import com.smartcampus.repository.EquipmentRepository;
+import com.smartcampus.repository.ResourceViewRepository;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import com.smartcampus.service.ResourceService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,10 +21,13 @@ public class ResourceController {
 
     private final ResourceService resourceService;
     private final EquipmentRepository equipmentRepository;
+    private final ResourceViewRepository resourceViews;
 
-    public ResourceController(ResourceService resourceService, EquipmentRepository equipmentRepository) {
+    public ResourceController(ResourceService resourceService, EquipmentRepository equipmentRepository,
+                              ResourceViewRepository resourceViews) {
         this.resourceService = resourceService;
         this.equipmentRepository = equipmentRepository;
+        this.resourceViews = resourceViews;
     }
 
     @GetMapping("/resources")
@@ -51,8 +58,11 @@ public class ResourceController {
     }
 
     @GetMapping("/resources/{id}")
-    public String details(@PathVariable long id, Model model) {
+    public String details(@PathVariable long id, @AuthenticationPrincipal CampusUser user, Model model) {
         return resourceService.findResource(id).map(resource -> {
+            if (user != null && (user.getRole() == UserRole.STUDENT || user.getRole() == UserRole.CLUB_REPRESENTATIVE)) {
+                resourceViews.record(user.getUserId(), id);
+            }
             model.addAttribute("resource", resource);
             model.addAttribute("resourceType", resource.getClass().getSimpleName());
             model.addAttribute("discoveryGroups", java.util.Arrays.stream(ResourceDiscoveryGroup.values())

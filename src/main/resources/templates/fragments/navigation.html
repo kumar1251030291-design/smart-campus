@@ -9,15 +9,18 @@
                 <span>smart<span class="brand-campus">campus</span></span>
             </a>
             <div class="desktop-nav">
-                <a class="nav-link" th:href="@{/#approach}">Our Approach</a>
+                <a class="nav-link" th:href="@{/#approach}" th:if="${loggedInUserName == null}">Our Approach</a>
                 <a class="nav-link" th:href="@{/resources}">Explore Resources</a>
-                <a class="nav-link" th:href="@{/#contact}">Contact</a>
+                <a class="nav-link" th:href="@{/announcements}">Announcements</a>
+                <a class="nav-link" th:href="@{/#contact}" th:if="${loggedInUserName == null}">Contact</a>
+                <a class="portal-nav-link" th:if="${loggedInUserRole == 'ADMIN'}" th:href="@{/admin/dashboard}">Admin dashboard</a>
                 <a class="portal-nav-link" th:if="${loggedInUserRole == 'STUDENT'}" th:href="@{/student/dashboard}" th:classappend="${activePortalPage == 'dashboard'} ? ' active' : ''">Dashboard</a>
                 <a class="portal-nav-link" th:if="${loggedInUserRole == 'CLUB_REPRESENTATIVE'}" th:href="@{/club/dashboard}" th:classappend="${activePortalPage == 'dashboard'} ? ' active' : ''">Dashboard</a>
                 <a class="portal-nav-link" th:if="${loggedInUserRole == 'STUDENT'}" th:href="@{/student/bookings}" th:classappend="${activePortalPage == 'bookings'} ? ' active' : ''">My Bookings</a>
                 <a class="portal-nav-link" th:if="${loggedInUserRole == 'CLUB_REPRESENTATIVE'}" th:href="@{/club/bookings}" th:classappend="${activePortalPage == 'bookings'} ? ' active' : ''">My Bookings</a>
                 <a class="portal-nav-link" th:if="${loggedInUserRole == 'STUDENT'}" th:href="@{/student/equipment}" th:classappend="${activePortalPage == 'equipment'} ? ' active' : ''">My Equipment</a>
                 <a class="portal-nav-link" th:if="${loggedInUserRole == 'CLUB_REPRESENTATIVE'}" th:href="@{/club/equipment}" th:classappend="${activePortalPage == 'equipment'} ? ' active' : ''">My Equipment</a>
+                <a class="portal-nav-link" th:if="${loggedInUserRole == 'STUDENT' or loggedInUserRole == 'CLUB_REPRESENTATIVE'}" th:href="@{/notifications}" th:classappend="${activePortalPage == 'notifications'} ? ' active' : ''">Notifications</a>
                 <a class="portal-nav-link" th:if="${loggedInUserRole == 'STUDENT'}" th:href="@{/student/profile}" th:classappend="${activePortalPage == 'profile'} ? ' active' : ''">My Profile</a>
                 <a class="portal-nav-link" th:if="${loggedInUserRole == 'CLUB_REPRESENTATIVE'}" th:href="@{/club/profile}" th:classappend="${activePortalPage == 'profile'} ? ' active' : ''">My Profile</a>
                 <a class="nav-login" th:href="@{/login}" th:if="${loggedInUserName == null}">Login</a>
@@ -32,13 +35,16 @@
                 <div class="mobile-nav-panel">
                     <a th:href="@{/#approach}">Our Approach</a>
                     <a th:href="@{/resources}">Explore Resources</a>
+                    <a th:href="@{/announcements}">Announcements</a>
                     <a th:href="@{/#contact}">Contact</a>
+                    <a th:if="${loggedInUserRole == 'ADMIN'}" th:href="@{/admin/dashboard}">Admin dashboard</a>
                     <a th:if="${loggedInUserRole == 'STUDENT'}" th:href="@{/student/dashboard}">Dashboard</a>
                     <a th:if="${loggedInUserRole == 'CLUB_REPRESENTATIVE'}" th:href="@{/club/dashboard}">Dashboard</a>
                     <a th:if="${loggedInUserRole == 'STUDENT'}" th:href="@{/student/bookings}">My Bookings</a>
                     <a th:if="${loggedInUserRole == 'CLUB_REPRESENTATIVE'}" th:href="@{/club/bookings}">My Bookings</a>
                     <a th:if="${loggedInUserRole == 'STUDENT'}" th:href="@{/student/equipment}">My Equipment</a>
                     <a th:if="${loggedInUserRole == 'CLUB_REPRESENTATIVE'}" th:href="@{/club/equipment}">My Equipment</a>
+                    <a th:if="${loggedInUserRole == 'STUDENT' or loggedInUserRole == 'CLUB_REPRESENTATIVE'}" th:href="@{/notifications}">Notifications</a>
                     <a th:if="${loggedInUserRole == 'STUDENT'}" th:href="@{/student/profile}">My Profile</a>
                     <a th:if="${loggedInUserRole == 'CLUB_REPRESENTATIVE'}" th:href="@{/club/profile}">My Profile</a>
                     <a class="mobile-login" th:href="@{/login}" th:if="${loggedInUserName == null}">Login</a>

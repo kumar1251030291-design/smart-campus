@@ -39,10 +39,13 @@ public class BookingController {
     private final MultiResourceBundlingService bundlingService;
     private final PredictiveSlotSuggestionService predictiveService;
     private final com.smartcampus.service.EquipmentAllocationService equipmentService;
+    private final com.smartcampus.service.BookingDecisionPdfService pdfService;
 
     public BookingController(BookingService bookingService, BookingAvailabilityService availabilityService,
                              MultiResourceBundlingService bundlingService, PredictiveSlotSuggestionService predictiveService,
-                             com.smartcampus.service.EquipmentAllocationService equipmentService) {
+                             com.smartcampus.service.EquipmentAllocationService equipmentService,
+                             com.smartcampus.service.BookingDecisionPdfService pdfService) {
+        this.pdfService = pdfService;
         this.bookingService = bookingService; this.availabilityService = availabilityService;
         this.bundlingService = bundlingService; this.predictiveService = predictiveService;
         this.equipmentService = equipmentService;
@@ -117,6 +120,14 @@ public class BookingController {
                 || currentStatus == BookingStatus.ADDITIONAL_INFORMATION_REQUIRED || currentStatus == BookingStatus.ALTERNATIVE_PROPOSED
                 || (currentStatus == BookingStatus.APPROVED && java.time.LocalDateTime.of(request.get().eventDate(), request.get().startTime()).isAfter(java.time.LocalDateTime.now())));
         return "bookings/request-details";
+    }
+
+    @GetMapping({"/student/bookings/{id}/decision.pdf", "/club/bookings/{id}/decision.pdf"})
+    public org.springframework.http.ResponseEntity<byte[]> decisionPdf(@PathVariable long id, @AuthenticationPrincipal CampusUser user) {
+        var request = bookingService.find(id).filter(item -> item.requesterId() == user.getUserId());
+        if (request.isEmpty()) return org.springframework.http.ResponseEntity.notFound().build();
+        byte[] pdf = pdfService.decisionLetter(request.get(), bookingService.items(id), bookingService.history(id), user.getEmail());
+        return PdfResponses.inline(pdf, request.get().bookingCode());
     }
 
     private String formatTime(LocalTime time) {

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 320" role="img" aria-label="AI/GPU Lab: open till 9 PM">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#24453d"/><stop offset="1" stop-color="#659287"/></linearGradient></defs>
+  <rect width="640" height="320" fill="url(#g)"/>
+  <circle cx="560" cy="40" r="120" fill="#ffffff" opacity=".12"/>
+  <circle cx="80" cy="300" r="90" fill="#ffffff" opacity=".10"/>
+  <circle cx="470" cy="250" r="40" fill="#ffffff" opacity=".14"/>
+  <g fill="none" stroke="#fff" stroke-width="6" opacity=".95"><rect x="270" y="90" width="140" height="110" rx="10"/><rect x="300" y="120" width="80" height="50" rx="4"/><path d="M290 90v-20M320 90v-20M350 90v-20M380 90v-20M290 200v20M320 200v20M350 200v20M380 200v20"/></g>
+  <text x="40" y="270" font-family="Manrope, Arial, sans-serif" font-size="30" font-weight="800" fill="#ffffff">AI/GPU Lab: open till 9 PM</text>
+  <text x="40" y="60" font-family="Arial, sans-serif" font-size="15" font-weight="700" letter-spacing="3" fill="#ffffff" opacity=".85">SMART CAMPUS · FACILITY</text>
+</svg>

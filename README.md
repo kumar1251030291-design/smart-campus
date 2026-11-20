@@ -31,7 +31,7 @@ The local H2 database is stored in `data/smartcampus.mv.db`. The H2 console is a
 
 ## Resource catalogue
 
-Open <http://localhost:8080/resources> to browse the campus catalogue. Search by resource name and filter by category or availability. The app initializes `campus_resources` from `schema.sql` and `data.sql`; the fixed sample IDs make the 69 sample rows (12 classrooms, 15 laboratories, 30 equipment resources and 12 facilities) safe to reload on every startup.
+Open <http://localhost:8080/resources> to browse the campus catalogue. Search by resource name and filter by category or availability. The app initializes `campus_resources` from `schema.sql` and `data.sql`; the fixed sample IDs make the 85 sample rows (15 classrooms, 19 laboratories, 35 equipment resources and 16 facilities) safe to reload on every startup.
 
 ## Accounts and roles
 
@@ -39,7 +39,8 @@ Open <http://localhost:8080/resources> to browse the campus catalogue. Search by
 - `/login` is for students and club representatives. `/login/admin` is the separate administrator login route.
 - Successful login sends administrators to `/admin/dashboard`, students to `/student/dashboard`, and club representatives to `/club/dashboard` based on their authenticated role.
 - Authentication uses Spring Security form login, BCrypt password hashes, an HTTP session, and CSRF protection. The `campus_users` table stores role and account status. Public registration rejects administrator roles. Passwords must be 6–72 characters and fit BCrypt's 72-byte input limit.
-- There is no password-change page or endpoint yet. The 6-to-72-character rule and BCrypt 72-byte ceiling apply when registering a student/club account and initializing a demo administrator.
+- Student and club representatives can view and edit permitted fields from `/student/profile` and `/club/profile`. Email and roll number are read-only; role, account status, and permissions cannot be changed there.
+- Member password changes are available from the profile page. The current password is verified and the new password is BCrypt-hashed; new passwords must be 6 to 72 characters and fit BCrypt's 72-byte input limit.
 - `/admin/**` requires `ADMIN`, `/student/**` requires `STUDENT`, and `/club/**` requires `CLUB_REPRESENTATIVE`. The resource catalogue stays public.
 - The shared navigation shows the signed-in name and a POST logout button when a session is active.
 - The administrator area is at `/admin/dashboard`. Its resource distribution, student/club comparison, and account status charts use current H2 records.
@@ -65,6 +66,7 @@ Priority and fairness weights can be adjusted in `application.properties` using 
 - `/resources` supports search across resource names and descriptions, resource collection/category filtering, availability filtering, and capacity range filtering. `/resources/{id}` shows details for a catalogue item. Signed-in students and club representatives can start a prefilled request from a resource page.
 - `/student/bookings` and `/club/bookings` show only the current account's requests, with status and upcoming/completed filters. Request detail pages include the status history and any equipment issue/return records.
 - `/student/equipment` and `/club/equipment` show the current account's allocated equipment, due/overdue state, and returned-item condition history.
+- `/student/profile` and `/club/profile` show only the authenticated member's account details and allow updates to name, department, academic year, or club name as appropriate. Members can change their password after confirming their current password.
 - Availability feedback on the request form is calculated by the server from the current catalogue and request records; the request is checked again when submitted. A requester cannot supply another user's identity through the form.
 - The portals do not send email/SMS or collect a user-facing resource exploration history. Those capabilities are not enabled.
 - `/admin/**`, `/student/**`, and `/club/**` remain protected by their respective roles. Booking detail pages and dashboard summaries are scoped to the signed-in user; catalogue browsing remains public.
@@ -88,3 +90,9 @@ New accounts are written to the same persistent local H2 database at `data/smart
 ## Project layout
 
 Java code lives under `src/main/java/com/smartcampus` and is grouped into `config`, `controller`, `model`, `service`, `repository`, and `enums`. Page templates are in `src/main/resources/templates`; CSS and other static files are in `src/main/resources/static`.
+
+## Announcements, recently explored and decision letters
+
+- `/announcements` lists campus notices (seeded once into `campus_announcements` with images under `static/images/announcements`). The latest three appear on the student, club and admin dashboards.
+- Opening a resource page while signed in as a student or club representative records it in `resource_views`; the dashboard's "Recently explored" panel shows the last five distinct resources.
+- Every booking has a PDF decision letter (status, administrator reason, any suggested alternative time and the full status history): `/student/bookings/{id}/decision.pdf`, `/club/bookings/{id}/decision.pdf` (own bookings only) and `/admin/bookings/{id}/decision.pdf`. Links appear on the dashboard, My bookings, booking details, notification details and the admin booking pages. Generated with OpenPDF.

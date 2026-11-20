@@ -303,3 +303,17 @@ h1, h2, h3 { font-family: "Manrope", sans-serif; }
   .resource-card-actions { margin-top: 12px; }
   .resource-action-link { flex: 1 1 auto; }
 }
+
+/* Keep shared navigation links unadorned across pages and interaction states. */
+.site-header .desktop-nav a,
+.site-header .mobile-nav-panel a,
+.site-header .desktop-nav a:visited,
+.site-header .mobile-nav-panel a:visited,
+.site-header .desktop-nav a:hover,
+.site-header .mobile-nav-panel a:hover,
+.site-header .desktop-nav a:active,
+.site-header .mobile-nav-panel a:active,
+.site-header .desktop-nav a:focus,
+.site-header .mobile-nav-panel a:focus { text-decoration: none; }
+.site-header .desktop-nav a:focus-visible,
+.site-header .mobile-nav-panel a:focus-visible { outline: 2px solid var(--sage); outline-offset: 3px; border-radius: 5px; }

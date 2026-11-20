@@ -26,9 +26,15 @@ public class AdminController {
     private final AdminDashboardService dashboardService;
     private final ResourceService resourceService;
     private final UserManagementService userManagementService;
+    private final com.smartcampus.service.BookingService bookingService;
+    private final com.smartcampus.repository.AnnouncementRepository announcements;
 
     public AdminController(AdminDashboardService dashboardService, ResourceService resourceService,
-                           UserManagementService userManagementService) {
+                           UserManagementService userManagementService,
+                           com.smartcampus.service.BookingService bookingService,
+                           com.smartcampus.repository.AnnouncementRepository announcements) {
+        this.bookingService = bookingService;
+        this.announcements = announcements;
         this.dashboardService = dashboardService;
         this.resourceService = resourceService;
         this.userManagementService = userManagementService;
@@ -40,6 +46,18 @@ public class AdminController {
     @GetMapping("/admin/dashboard")
     public String dashboard(Model model) {
         model.addAttribute("stats", dashboardService.loadStatistics());
+        var allBookings = bookingService.searchAll(null, null, null, null);
+        java.util.Map<String, Long> byStatus = new java.util.LinkedHashMap<>();
+        for (var status : com.smartcampus.enums.BookingStatus.values()) {
+            byStatus.put(status.getDisplayName(), allBookings.stream().filter(b -> b.status() == status).count());
+        }
+        model.addAttribute("bookingTotal", allBookings.size());
+        model.addAttribute("bookingsByStatus", byStatus);
+        model.addAttribute("awaitingReview", allBookings.stream().filter(b -> b.status() == com.smartcampus.enums.BookingStatus.PENDING
+                || b.status() == com.smartcampus.enums.BookingStatus.UNDER_REVIEW).count());
+        model.addAttribute("recentBookings", allBookings.stream()
+                .sorted(java.util.Comparator.comparing(com.smartcampus.model.BookingRequest::createdAt).reversed()).limit(6).toList());
+        model.addAttribute("dashboardAnnouncements", announcements.latest(3));
         return "admin/dashboard";
     }
 

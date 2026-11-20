@@ -33,6 +33,8 @@ public class CurrentUserAdvice {
         if (path.contains("/dashboard")) return "dashboard";
         if (path.contains("/bookings")) return "bookings";
         if (path.contains("/equipment")) return "equipment";
+        if (path.contains("/profile")) return "profile";
+        if (path.startsWith("/notifications")) return "notifications";
         if (path.startsWith("/resources")) return "resources";
         return "";
     }

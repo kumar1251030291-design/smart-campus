@@ -90,6 +90,26 @@ public class UserRepository {
                 status.name(), userId) > 0;
     }
 
+    public boolean updateStudentProfile(long userId, String fullName, String department, int yearOfStudy) {
+        return jdbcTemplate.update("""
+                UPDATE campus_users SET full_name=?, department=?, year_of_study=?
+                WHERE user_id=? AND role='STUDENT'
+                """, clean(fullName), clean(department), yearOfStudy, userId) > 0;
+    }
+
+    public boolean updateClubRepresentativeProfile(long userId, String fullName, String department, String clubName) {
+        return jdbcTemplate.update("""
+                UPDATE campus_users SET full_name=?, department=?, club_name=?
+                WHERE user_id=? AND role='CLUB_REPRESENTATIVE'
+                """, clean(fullName), clean(department), clean(clubName), userId) > 0;
+    }
+
+    public boolean updateMemberPasswordHash(long userId, UserRole role, String passwordHash) {
+        if (role != UserRole.STUDENT && role != UserRole.CLUB_REPRESENTATIVE) return false;
+        return jdbcTemplate.update("UPDATE campus_users SET password_hash=? WHERE user_id=? AND role=?",
+                passwordHash, userId, role.name()) > 0;
+    }
+
     public CampusUser save(String fullName, String email, String passwordHash, UserRole role,
                            String department, Integer yearOfStudy, String rollNumber, String clubName) {
         jdbcTemplate.update("""

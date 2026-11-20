@@ -193,18 +193,18 @@ class SmartCampusApplicationTests {
         assertThat(classroom.getCategory()).isEqualTo(ResourceCategory.CLASSROOM);
         assertThat(equipment.getCapacityOrQuantityLabel()).isEqualTo("30 items");
 
-        assertThat(resourceRepository.findAll()).hasSize(69).extracting(Resource::getName)
+        assertThat(resourceRepository.findAll()).hasSize(85).extracting(Resource::getName)
                 .contains("Classroom A101", "NVIDIA AI/GPU Lab", "Arduino Uno", "Innovation Centre");
         assertThat(resourceService.searchResources("computer lab", null, null))
                 .extracting(Resource::getName)
                 .containsExactlyInAnyOrder("Computer Lab 1", "Computer Programming Lab");
-        assertThat(resourceService.searchResources("", ResourceCategory.CLASSROOM, null)).hasSize(12);
+        assertThat(resourceService.searchResources("", ResourceCategory.CLASSROOM, null)).hasSize(15);
         assertThat(resourceService.searchResources("arduino", ResourceCategory.EQUIPMENT,
                 AvailabilityStatus.AVAILABLE)).extracting(Resource::getName)
                 .containsExactlyInAnyOrder("Arduino Kits", "Arduino Mega", "Arduino Uno");
         mockMvc.perform(get("/resources")).andExpect(status().isOk())
                 .andExpect(content().string(containsString("NVIDIA AI/GPU Lab")))
-                .andExpect(content().string(containsString("69 results")));
+                .andExpect(content().string(containsString("85 results")));
     }
 
     private void submitStudent(String email, String password) throws Exception {

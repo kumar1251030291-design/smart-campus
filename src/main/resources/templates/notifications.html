@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Notifications | Smart Campus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css(v=5)}">
+    <link rel="stylesheet" th:href="@{/css/portal.css(v=5)}">
+</head>
+<body>
+<header th:replace="~{fragments/navigation :: mainNavigation}"></header>
+<main class="portal-shell notification-page">
+    <div class="portal-container">
+        <a class="resource-back-link" th:href="@{/student/dashboard}" th:if="${loggedInUserRole == 'STUDENT'}">← Back to dashboard</a>
+        <a class="resource-back-link" th:href="@{/club/dashboard}" th:if="${loggedInUserRole == 'CLUB_REPRESENTATIVE'}">← Back to dashboard</a>
+        <section class="notification-page-heading">
+            <div>
+                <p class="portal-kicker">YOUR CAMPUS UPDATES</p>
+                <h1 class="portal-heading">Notifications</h1>
+                <p class="portal-muted mb-0">Your latest booking and equipment updates.</p>
+            </div>
+            <div class="notification-heading-actions">
+                <span class="notification-count"><strong th:text="${unreadCount}">0</strong> unread</span>
+                <form th:if="${unreadCount > 0}" method="post" th:action="@{/notifications/read-all}">
+                    <button class="portal-action secondary" type="submit">Mark all as read</button>
+                </form>
+            </div>
+        </section>
+
+        <p class="notification-feedback" th:if="${param.readAllUpdated != null}">All notifications are marked as read.</p>
+        <section class="portal-panel notification-list-panel" aria-label="Your notifications">
+            <div class="portal-empty" th:if="${#lists.isEmpty(notifications)}">You are all caught up. There are no notifications yet.</div>
+            <article class="notification-row" th:each="notice : ${notifications}"
+                     th:classappend="${notice.unread()} ? ' notification-unread' : ' notification-read'">
+                <div class="notification-row-main">
+                    <div class="notification-row-heading">
+                        <a class="notification-title" th:href="@{/notifications/{id}(id=${notice.notificationId})}" th:text="${notice.title}">Notification title</a>
+                        <span class="notification-state" th:classappend="${notice.unread()} ? ' unread' : ' read'"
+                              th:text="${notice.unread()} ? 'Unread' : 'Read'">Unread</span>
+                    </div>
+                    <p class="notification-message" th:text="${notice.message}">Notification message</p>
+                    <div class="notification-meta">
+                        <span class="notification-type" th:text="${notice.type.displayName}">Booking update</span>
+                        <time th:datetime="${notice.occurredAt}" th:text="${#temporals.format(notice.occurredAt, 'dd MMM yyyy, hh:mm a')}">31 Oct 2026, 09:15 AM</time>
+                    </div>
+                </div>
+                <form th:if="${notice.unread()}" method="post" th:action="@{/notifications/{id}/read(id=${notice.notificationId})}">
+                    <button class="notification-mark-read" type="submit">Mark read</button>
+                </form>
+            </article>
+        </section>
+    </div>
+</main>
+</body>
+</html>

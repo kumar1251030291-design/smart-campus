@@ -39,7 +39,8 @@ public class MemberPortalService {
         return new MemberDashboardData(requests.size(), count(requests, BookingStatus.PENDING),
                 count(requests, BookingStatus.APPROVED), count(requests, BookingStatus.REJECTED),
                 requests.stream().limit(5).toList(), upcoming.stream().limit(5).toList(), activeEquipment,
-                notificationService.recentForUser(user.getUserId(), 8));
+                notificationService.recentForUser(user.getUserId(), 8),
+                notificationService.unreadCountFor(user));
     }
 
     public List<EquipmentAllocationView> activeEquipment(long userId) { return equipmentRepository.findActiveAllocationsForUser(userId); }

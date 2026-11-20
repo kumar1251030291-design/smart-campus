@@ -30,10 +30,11 @@ public class SecurityConfig {
                 .userDetailsService(userDetailsService)
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/", "/resources", "/resources/**", "/login", "/login/admin", "/register",
-                                "/css/**", "/js/**", "/error", "/h2-console/**").permitAll()
+                                "/css/**", "/js/**", "/images/**", "/announcements", "/announcements/**", "/error", "/h2-console/**").permitAll()
                         .requestMatchers("/admin", "/admin/**").hasRole("ADMIN")
                         .requestMatchers("/student", "/student/**").hasRole("STUDENT")
                         .requestMatchers("/club", "/club/**").hasRole("CLUB_REPRESENTATIVE")
+                        .requestMatchers("/notifications", "/notifications/**").hasAnyRole("STUDENT", "CLUB_REPRESENTATIVE")
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")

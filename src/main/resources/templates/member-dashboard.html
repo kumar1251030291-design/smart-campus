@@ -6,57 +6,104 @@
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/styles.css(v=4)}"><link rel="stylesheet" th:href="@{/css/portal.css(v=2)}">
+    <link rel="stylesheet" th:href="@{/css/styles.css(v=5)}"><link rel="stylesheet" th:href="@{/css/portal.css(v=5)}">
 </head>
 <body>
 <header th:replace="~{fragments/navigation :: mainNavigation}"></header>
 <main class="portal-shell"><div class="portal-container">
-    <section class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
-        <div><p class="portal-kicker" th:text="${dashboardRole} + ' PORTAL · ' + ${today}">STUDENT PORTAL</p>
-            <h1 class="portal-heading" th:text="'Welcome, ' + ${campusUser.fullName}">Welcome to Smart Campus</h1>
-            <span class="portal-pill mt-2" th:text="${campusUser.accountStatus}">ACTIVE</span>
-            <p class="portal-muted mb-0" th:if="${campusUser.role.name() == 'STUDENT'}">
+    <section class="dash-welcome">
+        <div>
+            <p class="portal-kicker" th:text="${dashboardRole} + ' PORTAL · ' + ${#temporals.format(today, 'dd MMM yyyy')}">STUDENT PORTAL</p>
+            <h1 class="dash-welcome-title" th:text="'Welcome, ' + ${campusUser.fullName}">Welcome, Member</h1>
+            <p class="dash-welcome-meta" th:if="${campusUser.role.name() == 'STUDENT'}">
                 <span th:text="${campusUser.department}"></span> · Year <span th:text="${campusUser.yearOfStudy}"></span> · Roll <span th:text="${campusUser.rollNumber}"></span>
+                <span class="portal-pill status-approved ms-1" th:text="${campusUser.accountStatus}">ACTIVE</span>
             </p>
-            <p class="portal-muted mb-0" th:if="${campusUser.role.name() == 'CLUB_REPRESENTATIVE'}">
+            <p class="dash-welcome-meta" th:if="${campusUser.role.name() == 'CLUB_REPRESENTATIVE'}">
                 <span th:text="${campusUser.clubName}"></span> · <span th:text="${campusUser.department}"></span> · <span th:text="${campusUser.email}"></span>
+                <span class="portal-pill status-approved ms-1" th:text="${campusUser.accountStatus}">ACTIVE</span>
             </p>
         </div>
-        <div class="d-flex gap-2 flex-wrap"><a class="portal-action" th:href="@{/resources}">Explore resources</a><a class="portal-action secondary" th:href="@{'/' + ${memberPath} + '/bookings/new'}">New booking request</a></div>
+        <div class="dash-welcome-actions">
+            <a class="portal-action" th:href="@{'/' + ${memberPath} + '/bookings/new'}">＋ New booking request</a>
+            <a class="portal-action secondary" th:href="@{/resources}">Explore resources</a>
+        </div>
     </section>
 
-    <div class="row g-3 mb-4">
-        <div class="col-6 col-lg"><div class="portal-stat"><span class="stat-label">Total requests</span><strong class="stat-number" th:text="${dashboardData.totalBookings}">0</strong></div></div>
-        <div class="col-6 col-lg"><div class="portal-stat"><span class="stat-label">Pending</span><strong class="stat-number" th:text="${dashboardData.pendingBookings}">0</strong></div></div>
-        <div class="col-6 col-lg"><div class="portal-stat"><span class="stat-label">Approved</span><strong class="stat-number" th:text="${dashboardData.approvedBookings}">0</strong></div></div>
-        <div class="col-6 col-lg"><div class="portal-stat"><span class="stat-label">Rejected</span><strong class="stat-number" th:text="${dashboardData.rejectedBookings}">0</strong></div></div>
-        <div class="col-6 col-lg"><div class="portal-stat"><span class="stat-label">Upcoming reservations</span><strong class="stat-number" th:text="${#lists.size(dashboardData.upcomingBookings)}">0</strong></div></div>
-        <div class="col-6 col-lg"><div class="portal-stat"><span class="stat-label">Allocated equipment</span><strong class="stat-number" th:text="${#lists.size(dashboardData.allocatedEquipment)}">0</strong></div></div>
-    </div>
+    <section class="dash-stats" aria-label="Your booking summary">
+        <a class="dash-stat" th:href="@{'/' + ${memberPath} + '/bookings'}"><span class="dash-stat-icon">▤</span><span class="dash-stat-label">Total requests</span><strong th:text="${dashboardData.totalBookings}">0</strong></a>
+        <a class="dash-stat" th:href="@{'/' + ${memberPath} + '/bookings?status=PENDING'}"><span class="dash-stat-icon tone-amber">◔</span><span class="dash-stat-label">Pending</span><strong th:text="${dashboardData.pendingBookings}">0</strong></a>
+        <a class="dash-stat" th:href="@{'/' + ${memberPath} + '/bookings?status=APPROVED'}"><span class="dash-stat-icon tone-green">✓</span><span class="dash-stat-label">Approved</span><strong th:text="${dashboardData.approvedBookings}">0</strong></a>
+        <a class="dash-stat" th:href="@{'/' + ${memberPath} + '/bookings?status=REJECTED'}"><span class="dash-stat-icon tone-red">✕</span><span class="dash-stat-label">Rejected</span><strong th:text="${dashboardData.rejectedBookings}">0</strong></a>
+        <a class="dash-stat" th:href="@{'/' + ${memberPath} + '/bookings?filter=upcoming'}"><span class="dash-stat-icon">◷</span><span class="dash-stat-label">Upcoming</span><strong th:text="${#lists.size(dashboardData.upcomingBookings)}">0</strong></a>
+        <a class="dash-stat" th:href="@{'/' + ${memberPath} + '/equipment'}"><span class="dash-stat-icon">⚙</span><span class="dash-stat-label">Equipment</span><strong th:text="${#lists.size(dashboardData.allocatedEquipment)}">0</strong></a>
+    </section>
 
-    <div class="row g-3">
-        <div class="col-lg-7"><section class="portal-panel">
-            <div class="d-flex justify-content-between align-items-center gap-2 mb-3"><h2 class="h5 mb-0">Recent booking activity</h2><a class="small text-success" th:href="@{'/' + ${memberPath} + '/bookings'}">View all</a></div>
-            <div class="table-responsive" th:if="${!#lists.isEmpty(dashboardData.recentBookings)}"><table class="table portal-table align-middle mb-0"><thead><tr><th>Event</th><th>When</th><th>Status</th></tr></thead><tbody>
-                <tr th:each="request:${dashboardData.recentBookings}"><td><a class="text-success" th:href="@{'/' + ${memberPath} + '/bookings/' + ${request.bookingId}}" th:text="${request.eventTitle}"></a><small class="d-block text-secondary" th:text="${request.bookingCode}"></small></td><td th:text="${#temporals.format(request.eventDate, 'dd MMM yyyy')}"></td><td><span class="portal-pill" th:text="${request.status.displayName}"></span></td></tr>
+    <div class="dash-grid">
+        <section class="portal-panel dash-span-8">
+            <div class="dash-panel-head"><h2>Recent booking activity</h2><a th:href="@{'/' + ${memberPath} + '/bookings'}">View all →</a></div>
+            <div class="table-responsive" th:if="${!#lists.isEmpty(dashboardData.recentBookings)}"><table class="table portal-table align-middle mb-0"><thead><tr><th>Event</th><th>When</th><th>Status</th><th></th></tr></thead><tbody>
+                <tr th:each="request:${dashboardData.recentBookings}">
+                    <td><a class="dash-link-strong" th:href="@{'/' + ${memberPath} + '/bookings/' + ${request.bookingId}}" th:text="${request.eventTitle}"></a><small class="d-block text-secondary" th:text="${request.bookingCode}"></small></td>
+                    <td><span th:text="${#temporals.format(request.eventDate, 'dd MMM yyyy')}"></span><small class="d-block text-secondary" th:text="${#temporals.format(request.startTime, 'hh:mm a')} + ' – ' + ${#temporals.format(request.endTime, 'hh:mm a')}"></small></td>
+                    <td><span class="portal-pill" th:classappend="' status-' + ${#strings.toLowerCase(request.status.name())}" th:text="${request.status.displayName}"></span></td>
+                    <td class="text-end"><a class="dash-pdf-link" th:href="@{'/' + ${memberPath} + '/bookings/' + ${request.bookingId} + '/decision.pdf'}" target="_blank" title="Download decision letter">PDF</a></td>
+                </tr>
             </tbody></table></div>
             <div class="portal-empty" th:if="${#lists.isEmpty(dashboardData.recentBookings)}">No booking requests yet. Explore campus resources when you are ready to plan an event.</div>
         </section>
-        <section class="portal-panel mt-3"><div class="d-flex justify-content-between align-items-center mb-3"><h2 class="h5 mb-0">Upcoming reservations</h2><a class="small text-success" th:href="@{'/' + ${memberPath} + '/bookings?filter=upcoming'}">View schedule</a></div>
-            <div class="portal-detail-card mb-2" th:each="request:${dashboardData.upcomingBookings}"><div class="d-flex justify-content-between flex-wrap gap-2"><strong th:text="${request.eventTitle}"></strong><span class="portal-pill" th:text="${#temporals.format(request.eventDate, 'dd MMM yyyy')} + ' · ' + ${#temporals.format(request.startTime, 'hh:mm a')}"></span></div><small class="text-secondary" th:text="${request.bookingCode} + ' · ends ' + ${#temporals.format(request.endTime, 'hh:mm a')}"></small></div>
-            <div class="portal-empty" th:if="${#lists.isEmpty(dashboardData.upcomingBookings)}">No upcoming approved reservations.</div>
-        </section></div>
-        <div class="col-lg-5"><section class="portal-panel"><div class="d-flex justify-content-between align-items-center mb-3"><h2 class="h5 mb-0">My allocated equipment</h2><a class="small text-success" th:href="@{'/' + ${memberPath} + '/equipment'}">My equipment</a></div>
-            <div class="portal-detail-card mb-2" th:each="item:${dashboardData.allocatedEquipment}"><div class="d-flex justify-content-between gap-2"><strong th:text="${item.resourceName}"></strong><span class="portal-pill" th:text="${item.equipmentStatus}"></span></div><small class="text-secondary" th:text="${item.assetTag != null ? item.assetTag : item.allocatedQuantity + ' item(s)'} + ' · ' + ${item.bookingCode}"></small></div>
-            <div class="portal-empty" th:if="${#lists.isEmpty(dashboardData.allocatedEquipment)}">No equipment is currently reserved or issued to your account.</div>
-        </section>
-        <section class="portal-panel mt-3"><div class="d-flex justify-content-between align-items-center mb-3"><h2 class="h5 mb-0">Notifications</h2></div>
-            <div th:each="notice:${dashboardData.notifications}" class="portal-alert mb-2" th:classappend="${notice.attentionNeeded()} ? ' portal-attention' : ''"><strong th:text="${notice.title}"></strong><p class="small mb-1" th:text="${notice.message}"></p><a class="small text-success" th:if="${notice.destinationUrl != null}" th:href="@{${notice.destinationUrl}}">Open update</a><small class="d-block text-secondary" th:text="${#temporals.format(notice.occurredAt, 'dd MMM yyyy, hh:mm a')}"></small></div>
+
+        <section class="portal-panel dash-span-4">
+            <div class="dash-panel-head"><h2>Notifications <span class="notification-count"><strong th:text="${dashboardData.unreadNotificationCount}">0</strong> unread</span></h2><a th:href="@{/notifications}">View all →</a></div>
+            <div th:each="notice,iter:${dashboardData.notifications}" th:if="${iter.index < 4}" class="dash-notice" th:classappend="${notice.unread()} ? ' unread' : ''">
+                <a class="notification-title" th:href="@{/notifications/{id}(id=${notice.notificationId})}" th:text="${notice.title}"></a>
+                <p th:text="${notice.message}"></p>
+                <small th:text="${#temporals.format(notice.occurredAt, 'dd MMM yyyy, hh:mm a')}"></small>
+            </div>
             <div class="portal-empty" th:if="${#lists.isEmpty(dashboardData.notifications)}">No notifications yet.</div>
         </section>
-        <section class="portal-panel mt-3"><h2 class="h5">Recently explored</h2><div class="portal-empty">Resource exploration history is not collected yet.</div></section>
-        <section class="portal-panel mt-3"><div class="d-flex justify-content-between align-items-center mb-3"><h2 class="h5 mb-0">Campus announcements</h2></div>
-            <div class="portal-empty" th:if="${#lists.isEmpty(dashboardAnnouncements)}">There are no announcements at this time.</div></section></div>
+
+        <section class="portal-panel dash-span-6">
+            <div class="dash-panel-head"><h2>Upcoming reservations</h2><a th:href="@{'/' + ${memberPath} + '/bookings?filter=upcoming'}">View schedule →</a></div>
+            <a class="dash-list-item" th:each="request:${dashboardData.upcomingBookings}" th:href="@{'/' + ${memberPath} + '/bookings/' + ${request.bookingId}}">
+                <span class="dash-date-badge"><strong th:text="${#temporals.format(request.eventDate, 'dd')}">01</strong><small th:text="${#temporals.format(request.eventDate, 'MMM')}">Dec</small></span>
+                <span><strong th:text="${request.eventTitle}"></strong><small th:text="${#temporals.format(request.startTime, 'hh:mm a')} + ' – ' + ${#temporals.format(request.endTime, 'hh:mm a')} + ' · ' + ${request.bookingCode}"></small></span>
+            </a>
+            <div class="portal-empty" th:if="${#lists.isEmpty(dashboardData.upcomingBookings)}">No upcoming approved reservations.</div>
+        </section>
+
+        <section class="portal-panel dash-span-6">
+            <div class="dash-panel-head"><h2>My allocated equipment</h2><a th:href="@{'/' + ${memberPath} + '/equipment'}">My equipment →</a></div>
+            <div class="dash-list-item" th:each="item:${dashboardData.allocatedEquipment}">
+                <span class="dash-stat-icon">⚙</span>
+                <span><strong th:text="${item.resourceName}"></strong><small th:text="${item.assetTag != null ? item.assetTag : item.allocatedQuantity + ' item(s)'} + ' · ' + ${item.bookingCode}"></small></span>
+                <span class="portal-pill ms-auto" th:text="${item.equipmentStatus}"></span>
+            </div>
+            <div class="portal-empty" th:if="${#lists.isEmpty(dashboardData.allocatedEquipment)}">No equipment is currently reserved or issued to your account.</div>
+        </section>
+
+        <section class="portal-panel dash-span-7">
+            <div class="dash-panel-head"><h2>Campus announcements</h2><a th:href="@{/announcements}">All announcements →</a></div>
+            <a class="announcement-card" th:each="item:${dashboardAnnouncements}" th:href="@{/announcements/{id}(id=${item.announcementId})}">
+                <img th:src="@{${item.imagePath}}" th:alt="${item.title}" loading="lazy">
+                <span class="announcement-copy">
+                    <span class="announcement-meta"><span class="portal-pill" th:text="${item.categoryLabel()}"></span><small th:text="${#temporals.format(item.publishedOn, 'dd MMM yyyy')}"></small></span>
+                    <strong th:text="${item.title}"></strong>
+                    <small th:text="${item.summary}"></small>
+                </span>
+            </a>
+            <div class="portal-empty" th:if="${#lists.isEmpty(dashboardAnnouncements)}">There are no announcements at this time.</div>
+        </section>
+
+        <section class="portal-panel dash-span-5">
+            <div class="dash-panel-head"><h2>Recently explored</h2><a th:href="@{/resources}">Browse catalogue →</a></div>
+            <a class="dash-list-item" th:each="item:${recentlyExplored}" th:href="@{/resources/{id}(id=${item.resourceId})}">
+                <span class="dash-stat-icon" th:text="${item.category.name() == 'CLASSROOM'} ? '▣' : (${item.category.name() == 'LABORATORY'} ? '⚗' : (${item.category.name() == 'EQUIPMENT'} ? '⚙' : '◇'))">▣</span>
+                <span><strong th:text="${item.name}"></strong><small th:text="${item.category.displayName} + ' · ' + ${item.location}"></small></span>
+                <span class="portal-pill ms-auto" th:text="${item.availabilityStatus.displayName}"></span>
+            </a>
+            <div class="portal-empty" th:if="${#lists.isEmpty(recentlyExplored)}">Resources you open from the catalogue will appear here.</div>
+        </section>
     </div>
 </div></main>
 </body></html>

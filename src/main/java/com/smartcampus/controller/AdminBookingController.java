@@ -32,10 +32,14 @@ public class AdminBookingController {
     private final MultiResourceBundlingService bundling;
     private final PredictiveSlotSuggestionService predictive;
     private final PriorityWeightedDynamicSlotReallocationService priorities;
+    private final com.smartcampus.service.BookingDecisionPdfService pdfService;
+    private final com.smartcampus.repository.UserRepository users;
 
     public AdminBookingController(BookingService bookings, EquipmentAllocationService equipment,
             BookingAvailabilityService availability, MultiResourceBundlingService bundling,
-            PredictiveSlotSuggestionService predictive, PriorityWeightedDynamicSlotReallocationService priorities) {
+            PredictiveSlotSuggestionService predictive, PriorityWeightedDynamicSlotReallocationService priorities,
+            com.smartcampus.service.BookingDecisionPdfService pdfService, com.smartcampus.repository.UserRepository users) {
+        this.pdfService = pdfService; this.users = users;
         this.bookings = bookings; this.equipment = equipment; this.availability = availability;
         this.bundling = bundling; this.predictive = predictive; this.priorities = priorities;
     }
@@ -71,6 +75,15 @@ public class AdminBookingController {
         if (!items.isEmpty()) model.addAttribute("priority", priorities.calculate(booking, items.getFirst().resourceId()));
         model.addAttribute("availability", availability.check(booking, items, booking.bookingId()));
         return "admin/booking-details";
+    }
+
+    @GetMapping("/admin/bookings/{id}/decision.pdf")
+    public org.springframework.http.ResponseEntity<byte[]> decisionPdf(@PathVariable long id) {
+        var request = bookings.find(id);
+        if (request.isEmpty()) return org.springframework.http.ResponseEntity.notFound().build();
+        String email = users.findById(request.get().requesterId()).map(CampusUser::getEmail).orElse(null);
+        return PdfResponses.inline(pdfService.decisionLetter(request.get(), bookings.items(id), bookings.history(id), email),
+                request.get().bookingCode());
     }
 
     private String formatTime(LocalTime time) {

@@ -2,11 +2,15 @@ package com.smartcampus.service;
 
 import com.smartcampus.enums.NotificationType;
 import com.smartcampus.enums.UserRole;
+import com.smartcampus.model.CampusUser;
 import com.smartcampus.model.PortalNotification;
 import com.smartcampus.repository.PortalNotificationRepository;
 import com.smartcampus.repository.UserRepository;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @Service
@@ -49,6 +53,37 @@ public class PortalNotificationService {
 
     public List<PortalNotification> recentForUser(long userId, int max) { return notifications.recentForUser(userId, max); }
 
+    public List<PortalNotification> inboxFor(CampusUser user) {
+        requireMember(user);
+        return notifications.allForUser(user.getUserId());
+    }
+
+    public long unreadCountFor(CampusUser user) {
+        requireMember(user);
+        return notifications.unreadCountForUser(user.getUserId());
+    }
+
+    public PortalNotification findFor(CampusUser user, long notificationId) {
+        requireMember(user);
+        return notifications.findForUser(notificationId, user.getUserId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
+    @Transactional
+    public void markRead(CampusUser user, long notificationId) {
+        requireMember(user);
+        if (notifications.markReadForUser(notificationId, user.getUserId()) == 0
+                && notifications.findForUser(notificationId, user.getUserId()).isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @Transactional
+    public int markAllRead(CampusUser user) {
+        requireMember(user);
+        return notifications.markAllReadForUser(user.getUserId());
+    }
+
     private void create(long userId, String title, String message, NotificationType type,
                         Long bookingId, String url, String eventKey) {
         notifications.create(userId, title, message, type, bookingId, url, eventKey);
@@ -56,5 +91,11 @@ public class PortalNotificationService {
 
     private String memberPath(long userId) {
         return users.roleForUser(userId).orElse(UserRole.STUDENT) == UserRole.CLUB_REPRESENTATIVE ? "club" : "student";
+    }
+
+    private static void requireMember(CampusUser user) {
+        if (user == null || (user.getRole() != UserRole.STUDENT && user.getRole() != UserRole.CLUB_REPRESENTATIVE)) {
+            throw new AccessDeniedException("Only students and club representatives can access member notifications.");
+        }
     }
 }

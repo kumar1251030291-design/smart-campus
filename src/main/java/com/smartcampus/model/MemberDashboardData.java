@@ -6,4 +6,5 @@ public record MemberDashboardData(long totalBookings, long pendingBookings, long
                                   long rejectedBookings, List<BookingRequest> recentBookings,
                                   List<BookingRequest> upcomingBookings,
                                   List<EquipmentAllocationView> allocatedEquipment,
-                                  List<PortalNotification> notifications) { }
+                                  List<PortalNotification> notifications,
+                                  long unreadNotificationCount) { }
