@@ -6,7 +6,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/styles.css(v=5)}"><link rel="stylesheet" th:href="@{/css/admin.css(v=5)}">
+    <link rel="stylesheet" th:href="@{/css/styles.css(v=5)}"><link rel="stylesheet" th:href="@{/css/admin.css(v=6)}">
 </head>
 <body class="admin-page">
 <div class="admin-shell">
@@ -47,7 +47,7 @@
                     <p class="text-secondary small mb-0" th:if="${#lists.isEmpty(recentBookings)}">No booking requests yet.</p>
                 </article>
                 <article class="analytics-card admin-announcements">
-                    <div class="analytics-card-head"><div><h3>Campus announcements</h3><p>What students and clubs see</p></div><span class="analytics-mark">✦</span></div>
+                    <div class="analytics-card-head"><div><h3>Campus announcements</h3><p>What students and clubs see</p></div><a class="analytics-mark admin-add-btn" th:href="@{/announcements/new}" title="Post a new announcement" aria-label="Post a new announcement">+</a></div>
                     <a class="admin-recent-row" th:each="item : ${dashboardAnnouncements}" th:href="@{/announcements/{id}(id=${item.announcementId})}">
                         <img th:src="@{${item.imagePath}}" alt="" class="admin-announcement-thumb">
                         <span><strong th:text="${item.title}">Title</strong><small th:text="${#temporals.format(item.publishedOn, 'dd MMM yyyy')}">Date</small></span>

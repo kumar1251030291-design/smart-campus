@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 320" role="img" aria-label="Auditorium maintenance">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8a6a3d"/><stop offset="1" stop-color="#d6b67c"/></linearGradient></defs>
+  <rect width="640" height="320" fill="url(#g)"/>
+  <circle cx="560" cy="40" r="120" fill="#ffffff" opacity=".12"/>
+  <circle cx="80" cy="300" r="90" fill="#ffffff" opacity=".10"/>
+  <circle cx="470" cy="250" r="40" fill="#ffffff" opacity=".14"/>
+  <g fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" opacity=".95"><circle cx="350" cy="145" r="45"/><circle cx="350" cy="145" r="14"/><path d="M350 85v-15M350 220v-15M290 145h-15M425 145h-15M308 103l-10-10M402 197l-10-10M392 103l10-10M298 197l10-10"/></g>
+</svg>

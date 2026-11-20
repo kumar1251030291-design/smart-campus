@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css(v=5)}"><link rel="stylesheet" th:href="@{/css/portal.css(v=6)}">
+    <title>New announcement | Smart Campus</title>
+</head>
+<body>
+<header th:replace="~{fragments/navigation :: mainNavigation}"></header>
+<main class="portal-shell"><div class="portal-container">
+    <a class="resource-back-link" th:href="@{/announcements}">← All announcements</a>
+    <div class="dash-grid mt-2">
+        <section class="portal-panel dash-span-7">
+            <p class="portal-kicker">ANNOUNCEMENT BOARD</p>
+            <h1 class="portal-heading mb-1">Post a new announcement</h1>
+            <p class="portal-muted">It appears at the top of the announcement board and on every dashboard straight away.</p>
+            <form method="post" th:action="@{/announcements}" th:object="${announcementForm}" novalidate>
+                <div class="mb-3">
+                    <label class="portal-form-label" for="title">Title</label>
+                    <input class="form-control" id="title" th:field="*{title}" maxlength="160" placeholder="e.g. Robotics club open house on Friday" th:classappend="${#fields.hasErrors('title')} ? ' is-invalid' : ''">
+                    <div class="invalid-feedback" th:errors="*{title}"></div>
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-sm-6">
+                        <label class="portal-form-label" for="category">Category</label>
+                        <select class="form-select" id="category" th:field="*{category}" th:classappend="${#fields.hasErrors('category')} ? ' is-invalid' : ''">
+                            <option th:each="entry : ${categories}" th:value="${entry.key}" th:text="${entry.value}"></option>
+                        </select>
+                        <div class="invalid-feedback" th:errors="*{category}"></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="portal-form-label" for="imagePath">Picture</label>
+                        <select class="form-select" id="imagePath" th:field="*{imagePath}" th:classappend="${#fields.hasErrors('imagePath')} ? ' is-invalid' : ''">
+                            <option th:each="entry : ${images}" th:value="${entry.key}" th:text="${entry.value}"></option>
+                        </select>
+                        <div class="invalid-feedback" th:errors="*{imagePath}"></div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="portal-form-label" for="summary">Short summary <small class="text-secondary">(shown on dashboards)</small></label>
+                    <textarea class="form-control" id="summary" th:field="*{summary}" rows="2" maxlength="600" th:classappend="${#fields.hasErrors('summary')} ? ' is-invalid' : ''"></textarea>
+                    <div class="invalid-feedback" th:errors="*{summary}"></div>
+                </div>
+                <div class="mb-3">
+                    <label class="portal-form-label" for="body">Full details <small class="text-secondary">(optional)</small></label>
+                    <textarea class="form-control" id="body" th:field="*{body}" rows="5" maxlength="2000" th:classappend="${#fields.hasErrors('body')} ? ' is-invalid' : ''"></textarea>
+                    <div class="invalid-feedback" th:errors="*{body}"></div>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="portal-action" type="submit">Publish announcement</button>
+                    <a class="portal-action secondary" th:href="@{/announcements}">Cancel</a>
+                </div>
+            </form>
+        </section>
+        <aside class="portal-panel dash-span-5">
+            <div class="dash-panel-head"><h2>Picture preview</h2></div>
+            <img id="imagePreview" class="announcement-hero-img mt-0" th:src="@{${announcementForm.imagePath}}" alt="Selected announcement picture">
+            <p class="portal-muted small mb-0">Posted as <strong th:text="${loggedInUserName}">you</strong>. Everyone, including visitors who are not signed in, can read announcements.</p>
+        </aside>
+    </div>
+</div></main>
+<script>
+    document.getElementById('imagePath').addEventListener('change', function () {
+        document.getElementById('imagePreview').src = this.value;
+    });
+</script>
+</body></html>

@@ -173,10 +173,10 @@ public class BookingRepository {
         return jdbc.update("""
                 UPDATE booking_requests SET supporting_information =
                     CASE WHEN supporting_information IS NULL OR supporting_information = '' THEN ?
-                         ELSE supporting_information || CHAR(10) || ? END,
+                         ELSE supporting_information || ? END,
                     status='UNDER_REVIEW', updated_at=CURRENT_TIMESTAMP
                 WHERE booking_id=? AND status='ADDITIONAL_INFORMATION_REQUIRED'
-                """, information.trim(), information.trim(), bookingId) > 0;
+                """, information.trim(), "\n" + information.trim(), bookingId) > 0;
     }
 
     public boolean acceptAlternative(long bookingId) {
@@ -198,7 +198,7 @@ public class BookingRepository {
         return jdbc.query("""
                 SELECT DISTINCT br.* FROM booking_requests br JOIN booking_request_items bi ON bi.booking_id = br.booking_id
                 WHERE bi.resource_id = ? AND br.event_date = ? AND br.status IN """ + ACTIVE_BOOKING_STATUSES + """
-                  AND br.start_time < ? AND br.end_time > ? AND (? IS NULL OR br.booking_id <> ?)
+                  AND br.start_time < ? AND br.end_time > ? AND (CAST(? AS BIGINT) IS NULL OR br.booking_id <> CAST(? AS BIGINT))
                 ORDER BY br.start_time
                 """, BookingRepository::mapRequest, resourceId, Date.valueOf(date), Time.valueOf(end),
                 Time.valueOf(start), excludeBookingId, excludeBookingId);
@@ -209,7 +209,7 @@ public class BookingRepository {
                 SELECT COALESCE(SUM(bi.requested_quantity), 0)
                 FROM booking_requests br JOIN booking_request_items bi ON bi.booking_id = br.booking_id
                 WHERE bi.resource_id = ? AND br.event_date = ? AND br.status IN """ + ACTIVE_BOOKING_STATUSES + """
-                  AND br.start_time < ? AND br.end_time > ? AND (? IS NULL OR br.booking_id <> ?)
+                  AND br.start_time < ? AND br.end_time > ? AND (CAST(? AS BIGINT) IS NULL OR br.booking_id <> CAST(? AS BIGINT))
                 """, Integer.class, resourceId, Date.valueOf(date), Time.valueOf(end), Time.valueOf(start), excludeId, excludeId);
         return count == null ? 0 : count;
     }
@@ -219,7 +219,7 @@ public class BookingRepository {
                 SELECT COALESCE(SUM(br.expected_participants), 0)
                 FROM booking_requests br JOIN booking_request_items bi ON bi.booking_id = br.booking_id
                 WHERE bi.resource_id = ? AND br.event_date = ? AND br.status IN """ + ACTIVE_BOOKING_STATUSES + """
-                  AND br.start_time < ? AND br.end_time > ? AND (? IS NULL OR br.booking_id <> ?)
+                  AND br.start_time < ? AND br.end_time > ? AND (CAST(? AS BIGINT) IS NULL OR br.booking_id <> CAST(? AS BIGINT))
                 """, Integer.class, resourceId, Date.valueOf(date), Time.valueOf(end), Time.valueOf(start), excludeId, excludeId);
         return count == null ? 0 : count;
     }

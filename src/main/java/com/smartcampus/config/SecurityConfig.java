@@ -29,6 +29,8 @@ public class SecurityConfig {
         http
                 .userDetailsService(userDetailsService)
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/announcements/new").hasAnyRole("CLUB_REPRESENTATIVE", "ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/announcements").hasAnyRole("CLUB_REPRESENTATIVE", "ADMIN")
                         .requestMatchers("/", "/resources", "/resources/**", "/login", "/login/admin", "/register",
                                 "/css/**", "/js/**", "/images/**", "/announcements", "/announcements/**", "/error", "/h2-console/**").permitAll()
                         .requestMatchers("/admin", "/admin/**").hasRole("ADMIN")

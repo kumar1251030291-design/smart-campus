@@ -34,6 +34,7 @@ import java.util.List;
 @Order(2)
 public class DemoDataInitializer implements CommandLineRunner {
     private static final Logger log = LoggerFactory.getLogger(DemoDataInitializer.class);
+    private static final String DEMO_REVIEWER_EMAIL = "demo-reviewer@smartcampus.local";
 
     private final boolean enabled;
     private final UserRepository users;
@@ -60,17 +61,18 @@ public class DemoDataInitializer implements CommandLineRunner {
 
         Integer existing = jdbc.queryForObject("SELECT COUNT(*) FROM booking_requests", Integer.class);
         if (existing != null && existing > 0) return;
+        // Decisions are recorded by the real administrator when one exists. Otherwise a reviewer account
+        // with a random, never-shown password is used, so the demo never depends on admin settings.
         List<Long> adminIds = users.findActiveAdminIds();
-        if (adminIds.isEmpty()) {
-            log.warn("Demo bookings skipped: set SMART_CAMPUS_ADMIN_EMAIL and SMART_CAMPUS_ADMIN_PASSWORD first.");
-            return;
-        }
-        CampusUser admin = users.findById(adminIds.getFirst()).orElseThrow();
+        CampusUser admin = adminIds.isEmpty()
+                ? users.findByEmail(DEMO_REVIEWER_EMAIL).orElseGet(() -> users.save("Campus Administrator", DEMO_REVIEWER_EMAIL,
+                        encoder.encode(java.util.UUID.randomUUID().toString()), UserRole.ADMIN, null, null, null, null))
+                : users.findById(adminIds.getFirst()).orElseThrow();
         try {
             seedBookings(admin, s1, s2, c1, c2);
             log.info("Demo bookings created.");
         } catch (RuntimeException exception) {
-            log.warn("Demo bookings could not be fully created: {}", exception.getMessage());
+            log.error("Demo bookings could not be fully created", exception);
         }
     }
 

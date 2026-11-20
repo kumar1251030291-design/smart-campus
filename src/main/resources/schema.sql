@@ -152,3 +152,6 @@ CREATE TABLE IF NOT EXISTS resource_views (
 );
 
 CREATE INDEX IF NOT EXISTS idx_resource_views_user ON resource_views(user_id, viewed_at);
+
+-- Who posted an announcement (club representatives and administrators can post from the website).
+ALTER TABLE campus_announcements ADD COLUMN IF NOT EXISTS posted_by VARCHAR(100);

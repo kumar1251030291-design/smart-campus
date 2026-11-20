@@ -6,7 +6,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/styles.css(v=5)}"><link rel="stylesheet" th:href="@{/css/portal.css(v=5)}">
+    <link rel="stylesheet" th:href="@{/css/styles.css(v=5)}"><link rel="stylesheet" th:href="@{/css/portal.css(v=6)}">
 </head>
 <body>
 <header th:replace="~{fragments/navigation :: mainNavigation}"></header>
@@ -83,7 +83,7 @@
         </section>
 
         <section class="portal-panel dash-span-7">
-            <div class="dash-panel-head"><h2>Campus announcements</h2><a th:href="@{/announcements}">All announcements →</a></div>
+            <div class="dash-panel-head"><h2>Campus announcements</h2><span class="d-flex align-items-center gap-2"><a th:href="@{/announcements}">All announcements →</a><a class="dash-add-btn" th:if="${campusUser.role.name() == 'CLUB_REPRESENTATIVE'}" th:href="@{/announcements/new}" title="Post a new announcement" aria-label="Post a new announcement">+</a></span></div>
             <a class="announcement-card" th:each="item:${dashboardAnnouncements}" th:href="@{/announcements/{id}(id=${item.announcementId})}">
                 <img th:src="@{${item.imagePath}}" th:alt="${item.title}" loading="lazy">
                 <span class="announcement-copy">

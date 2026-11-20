@@ -175,3 +175,5 @@
 .admin-recent-row:hover strong { color: var(--admin-sage); }
 .admin-announcement-thumb { width: 56px; height: 32px; flex: 0 0 56px; border-radius: 6px; object-fit: cover; }
 a.data-badge { color: inherit; }
+.admin-add-btn { background: var(--admin-sage) !important; color: #fff !important; font-size: 18px; font-weight: 700; cursor: pointer; transition: transform .15s ease; }
+.admin-add-btn:hover { transform: scale(1.08); }

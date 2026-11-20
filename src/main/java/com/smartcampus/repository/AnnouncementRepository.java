@@ -29,9 +29,20 @@ public class AnnouncementRepository {
                 .stream().findFirst();
     }
 
+    /** Saves a new announcement and returns its id. IDs are assigned here so the existing table needs no change. */
+    public synchronized long create(String title, String summary, String body, String category, String imagePath, String postedBy) {
+        Long next = jdbc.queryForObject("SELECT COALESCE(MAX(announcement_id), 0) + 1 FROM campus_announcements", Long.class);
+        long id = next == null ? 1 : next;
+        jdbc.update("""
+                INSERT INTO campus_announcements (announcement_id, title, summary, body, category, image_path, published_on, posted_by)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """, id, title, summary, body, category, imagePath, java.sql.Date.valueOf(java.time.LocalDate.now()), postedBy);
+        return id;
+    }
+
     private static Announcement map(ResultSet rs, int row) throws SQLException {
         return new Announcement(rs.getLong("announcement_id"), rs.getString("title"), rs.getString("summary"),
                 rs.getString("body"), rs.getString("category"), rs.getString("image_path"),
-                rs.getDate("published_on").toLocalDate());
+                rs.getDate("published_on").toLocalDate(), rs.getString("posted_by"));
     }
 }
